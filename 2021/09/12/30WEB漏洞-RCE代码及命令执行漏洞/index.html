@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="Al0nez" />
+
+
+
+<meta name="description" content="前言在 Web 应用中有时候程序员为了考虑灵活性、简洁性，会在代码调用 代码或命令执行函数去处理。比如当应用在调用一些能将字符串转化成代 码的函数时，没有考虑用户是否能控制这个字符串，将造成代码执行漏 洞。同样调用系统命令处理，将造成命令执行漏洞。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="漏洞--RCE代码及命令执行漏洞全解">
+<meta property="og:url" content="https://al0nez.github.io/2021/09/12/30WEB%E6%BC%8F%E6%B4%9E-RCE%E4%BB%A3%E7%A0%81%E5%8F%8A%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E/index.html">
+<meta property="og:site_name" content="Al0nez&#39;s Bolg">
+<meta property="og:description" content="前言在 Web 应用中有时候程序员为了考虑灵活性、简洁性，会在代码调用 代码或命令执行函数去处理。比如当应用在调用一些能将字符串转化成代 码的函数时，没有考虑用户是否能控制这个字符串，将造成代码执行漏 洞。同样调用系统命令处理，将造成命令执行漏洞。">
+<meta property="og:locale">
+<meta property="og:image" content="https://p.pstatp.com/origin/pgc-image/6cbcde81bb104a2ea3b3c2703bbd9276">
+<meta property="og:image" content="https://p.pstatp.com/origin/pgc-image/0c00ea242aa74405bb4f687222e06941">
+<meta property="og:image" content="https://p.pstatp.com/origin/pgc-image/0611a988ad1d4e4daabfbf11a4064d65">
+<meta property="og:image" content="https://p.pstatp.com/origin/pgc-image/75a742c9a3a1492d9df791080b8a3a83">
+<meta property="article:published_time" content="2021-09-12T08:49:37.000Z">
+<meta property="article:modified_time" content="2021-09-12T09:05:09.829Z">
+<meta property="article:author" content="Al0nez">
+<meta property="article:tag" content="Web">
+<meta property="article:tag" content="小迪学习笔记">
+<meta property="article:tag" content="代码执行">
+<meta property="article:tag" content="命令执行">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://p.pstatp.com/origin/pgc-image/6cbcde81bb104a2ea3b3c2703bbd9276">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="Al0nez&#39;s Bolg" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/img/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>漏洞--RCE代码及命令执行漏洞全解 | Al0nez&#39;s Bolg</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script> yiliaConfig.jquery_ui = [false]; </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.jpg" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">Al0nez</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">我与春风皆过客,你携秋水揽星河</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">文章</a></li>
+                        
+                            <li><a href="/tags/">标签</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:123@123.com" title="Email"></a>
+                            
+                                <a class="fa 博客园" href="/L0ne1y.github.io" title="博客园"></a>
+                            
+                                <a class="fa QQ" href="#" title="QQ"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="http://moxfive.xyz/">MOxFIVE</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">专注于前端</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">Al0nez</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.jpg" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">Al0nez</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">我与春风皆过客,你携秋水揽星河</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">文章</a></li>
+                
+                    <li><a href="/tags/">标签</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:123@123.com" title="Email"></a>
+                            
+                                <a class="fa 博客园" target="_blank" href="/L0ne1y.github.io" title="博客园"></a>
+                            
+                                <a class="fa QQ" target="_blank" href="#" title="QQ"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="30web-30WEB漏洞-RCE代码及命令执行漏洞" class="article article-type-30web" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2021/09/12/30WEB%E6%BC%8F%E6%B4%9E-RCE%E4%BB%A3%E7%A0%81%E5%8F%8A%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E/" class="article-date">
+      <time datetime="2021-09-12T08:49:37.000Z" itemprop="datePublished">2021-09-12</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      漏洞--RCE代码及命令执行漏洞全解
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Web/" rel="tag">Web</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C/" rel="tag">代码执行</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C/" rel="tag">命令执行</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%B0%8F%E8%BF%AA%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" rel="tag">小迪学习笔记</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>在 Web 应用中有时候程序员为了考虑灵活性、简洁性，会在代码调用 代码或命令执行函数去处理。比如当应用在调用一些能将字符串转化成代 码的函数时，没有考虑用户是否能控制这个字符串，将造成代码执行漏 洞。同样调用系统命令处理，将造成命令执行漏洞。</p>
+<span id="more"></span>
+
+<p><img src="https://p.pstatp.com/origin/pgc-image/6cbcde81bb104a2ea3b3c2703bbd9276"></p>
+<h3 id="代码执行-RCE-漏洞"><a href="#代码执行-RCE-漏洞" class="headerlink" title="代码执行 RCE 漏洞"></a>代码执行 RCE 漏洞</h3><h4 id="形成"><a href="#形成" class="headerlink" title="形成"></a>形成</h4><ul>
+<li>可控变量</li>
+<li>漏洞函数</li>
+</ul>
+<h4 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h4><p>会将我们输入的数据当做代码来执行，如果我们当前的网站是PHP就当做PHP语言来执行。</p>
+<h4 id="检测"><a href="#检测" class="headerlink" title="检测"></a>检测</h4><p><strong>白盒</strong></p>
+<ul>
+<li>代码审计</li>
+</ul>
+<p><strong>黑盒</strong></p>
+<ul>
+<li>漏扫工具</li>
+<li>公开漏洞</li>
+<li>手工看参数值及功能点</li>
+</ul>
+<h4 id="相关函数"><a href="#相关函数" class="headerlink" title="相关函数"></a>相关函数</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">eval()</span><br></pre></td></tr></table></figure>
+
+<p>将输入的字符串当做PHP代码执行</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">assert()</span><br></pre></td></tr></table></figure>
+
+<p>会检查指定的 assertion 并在结果为 FALSE 时采取适当的行动</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">call_user_func()</span><br></pre></td></tr></table></figure>
+
+<p>把第一参数作为回调函数</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">call_user_func_array()</span><br></pre></td></tr></table></figure>
+
+<p>调用回到函数,并把第一个数组参数作为回到函数的参数</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">array_map()</span><br></pre></td></tr></table></figure>
+
+<p>为数组的每个元素应用回调函数</p>
+<h4 id="防御"><a href="#防御" class="headerlink" title="防御"></a>防御</h4><ul>
+<li>敏感函数禁用</li>
+<li>变量过滤或固定</li>
+<li>WAF产品</li>
+</ul>
+<h4 id="案例演示"><a href="#案例演示" class="headerlink" title="案例演示"></a>案例演示</h4><p>这题是一个白盒测试，需要代码审计</p>
+<p><img src="https://p.pstatp.com/origin/pgc-image/0c00ea242aa74405bb4f687222e06941"></p>
+<p>该代码是将一个字符串进行解密，然后执行脚本命令</p>
+<p><img src="https://p.pstatp.com/origin/pgc-image/0611a988ad1d4e4daabfbf11a4064d65"></p>
+<p>解密后发现是接收一个a参数</p>
+<p>直接使用<code>?a=ls</code>执行命令</p>
+<h3 id="命令执行"><a href="#命令执行" class="headerlink" title="命令执行"></a>命令执行</h3><h4 id="系统"><a href="#系统" class="headerlink" title="系统"></a>系统</h4><ul>
+<li>linux</li>
+<li>windows</li>
+</ul>
+<h4 id="原理-1"><a href="#原理-1" class="headerlink" title="原理"></a>原理</h4><p>应用在调用这些函数执行系统命令的时候，如果将用户的输入作为系统命令的参数拼接到命令行中，在没有过滤用户的输入的情况下，就会造成命令执行漏洞。</p>
+<h4 id="形成-1"><a href="#形成-1" class="headerlink" title="形成"></a>形成</h4><ul>
+<li>可控变量</li>
+<li>漏洞函数</li>
+</ul>
+<h4 id="命令拼接"><a href="#命令拼接" class="headerlink" title="命令拼接"></a>命令拼接</h4><p>Linux</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">A;B 		A 不论正确与否都会执行 B</span><br><span class="line">A&amp;B 		A 后台运行，A 和 B 同时执行</span><br><span class="line">A&amp;&amp;B 		A 执行成功时候才会执行 B 命令</span><br><span class="line">A|B 		A 执行的输出结果，作为 B 命令的参数，A 不论正确与否都会执行 B 命令</span><br><span class="line">A||B 		A 执行失败后才会执行 B 命令</span><br><span class="line">``		    反单引号linux下会当做命令来执行</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">127.0.0.1 ; cat /etc/passwd </span><br><span class="line">127.0.0.1 &amp; cat /etc/passwd </span><br><span class="line">127.0.0.1 &amp;&amp; cat /etc/passwd </span><br><span class="line">127.0.0.1 | cat /etc/passwd </span><br><span class="line">233 || cat /etc/passwd</span><br></pre></td></tr></table></figure>
+
+<p>windows</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&quot;|&quot;:		 直接执行后面的语句。</span><br><span class="line">&quot;||&quot;:		 如果前面的语句执行失败，则执行后面的语句，前面的语句只能为假才行。</span><br><span class="line">&quot;&amp;&quot;：		两条命令都执行，如果前面的语句为假则直接执行后面的语句，前面的语句可真可假。</span><br><span class="line">&quot;&amp;&amp;&quot;：		如果前面的语句为假则直接出错，也不执行后面的语句，前面的语句为真则两条命令都执			    行,前面的语句只能为真。</span><br></pre></td></tr></table></figure>
+
+<h4 id="php相关函数"><a href="#php相关函数" class="headerlink" title="php相关函数"></a>php相关函数</h4><ul>
+<li>system(args) 有回显</li>
+<li>passthru(args)(有回显)</li>
+<li>exec(args) （回显最后一行-必须echo输出）</li>
+<li>shell_exec(args) （无回显-必须输出）</li>
+<li>反引号：``</li>
+<li>popen(handle,mode)(无回显)</li>
+<li>proc_open(‘cmd’,‘flag’,‘flag’)（无回显）</li>
+<li>$process = proc_open(‘dir’,$des,$pipes);</li>
+<li>echo stream_get_contents($pipes[1]); </li>
+</ul>
+<h4 id="案例演示-1"><a href="#案例演示-1" class="headerlink" title="案例演示"></a>案例演示</h4><p>墨者命令注入执行分析</p>
+<p>通过抓包绕过前端js检测。使用<code>;</code>进行命令拼接</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">iipp=127.0.0.1;ls&amp;submit=Ping</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://p.pstatp.com/origin/pgc-image/75a742c9a3a1492d9df791080b8a3a83"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">iipp=127.0.0.1;cat&lt;key_21071211676104.php&amp;submit=Ping</span><br></pre></td></tr></table></figure>
+
+<p>成功获取flag</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mozhe1af4b8cc599a0a837919be1d30d</span><br></pre></td></tr></table></figure>
+
+<h3 id="涉及资源："><a href="#涉及资源：" class="headerlink" title="涉及资源："></a>涉及资源：</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">https://www.cnblogs.com/ermei/p/6689005.html</span><br><span class="line"></span><br><span class="line">http://blog.leanote.com/post/snowming/9da184ef24bd</span><br><span class="line"></span><br><span class="line">https://www.mozhe.cn/bug/detail/T0YyUmZRa1paTkJNQ0JmVWt3</span><br><span class="line">Sm13dz09bW96aGUmozhe</span><br><span class="line"></span><br><span class="line">https://www.mozhe.cn/bug/detail/RWpnQUllbmNaQUVndTFDWGx</span><br><span class="line">aL0JjUT09bW96aGUmozhe</span><br><span class="line"></span><br><span class="line">https://www.mozhe.cn/bug/detail/d01lL2RSbGEwZUNTeThVZ0xDd</span><br><span class="line">Xl0Zz09bW96aGUmozhe</span><br></pre></td></tr></table></figure>
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2021/09/12/30WEB%E6%BC%8F%E6%B4%9E-RCE%E4%BB%A3%E7%A0%81%E5%8F%8A%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E/">漏洞--RCE代码及命令执行漏洞全解</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">Al0nez</a></p>
+        <p><span>发布时间:</span>2021-09-12, 16:49:37</p>
+        <p><span>最后更新:</span>2021-09-12, 17:05:09</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2021/09/12/30WEB%E6%BC%8F%E6%B4%9E-RCE%E4%BB%A3%E7%A0%81%E5%8F%8A%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E/" title="漏洞--RCE代码及命令执行漏洞全解">https://al0nez.github.io/2021/09/12/30WEB%E6%BC%8F%E6%B4%9E-RCE%E4%BB%A3%E7%A0%81%E5%8F%8A%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E/</a>
+            <span class="copy-path" data-clipboard-text="原文: https://al0nez.github.io/2021/09/12/30WEB%E6%BC%8F%E6%B4%9E-RCE%E4%BB%A3%E7%A0%81%E5%8F%8A%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E/　　作者: Al0nez" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2021/09/12/02%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E6%95%B0%E6%8D%AE%E5%8C%85%E6%8B%93%E5%B1%95/">
+                    02基础入门--数据包拓展
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C-RCE-%E6%BC%8F%E6%B4%9E"><span class="toc-number">2.</span> <span class="toc-text">代码执行 RCE 漏洞</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%BD%A2%E6%88%90"><span class="toc-number">2.1.</span> <span class="toc-text">形成</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8E%9F%E7%90%86"><span class="toc-number">2.2.</span> <span class="toc-text">原理</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A3%80%E6%B5%8B"><span class="toc-number">2.3.</span> <span class="toc-text">检测</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%9B%B8%E5%85%B3%E5%87%BD%E6%95%B0"><span class="toc-number">2.4.</span> <span class="toc-text">相关函数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%98%B2%E5%BE%A1"><span class="toc-number">2.5.</span> <span class="toc-text">防御</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A1%88%E4%BE%8B%E6%BC%94%E7%A4%BA"><span class="toc-number">2.6.</span> <span class="toc-text">案例演示</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C"><span class="toc-number">3.</span> <span class="toc-text">命令执行</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%B3%BB%E7%BB%9F"><span class="toc-number">3.1.</span> <span class="toc-text">系统</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8E%9F%E7%90%86-1"><span class="toc-number">3.2.</span> <span class="toc-text">原理</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%BD%A2%E6%88%90-1"><span class="toc-number">3.3.</span> <span class="toc-text">形成</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%91%BD%E4%BB%A4%E6%8B%BC%E6%8E%A5"><span class="toc-number">3.4.</span> <span class="toc-text">命令拼接</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#php%E7%9B%B8%E5%85%B3%E5%87%BD%E6%95%B0"><span class="toc-number">3.5.</span> <span class="toc-text">php相关函数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A1%88%E4%BE%8B%E6%BC%94%E7%A4%BA-1"><span class="toc-number">3.6.</span> <span class="toc-text">案例演示</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B6%89%E5%8F%8A%E8%B5%84%E6%BA%90%EF%BC%9A"><span class="toc-number">4.</span> <span class="toc-text">涉及资源：</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-4 i,
+        .toc-level-4 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2021/09/12/02%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E6%95%B0%E6%8D%AE%E5%8C%85%E6%8B%93%E5%B1%95/" title="下一篇: 02基础入门--数据包拓展">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2021/09/12/30WEB%E6%BC%8F%E6%B4%9E-RCE%E4%BB%A3%E7%A0%81%E5%8F%8A%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E/">漏洞--RCE代码及命令执行漏洞全解</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/12/02%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E6%95%B0%E6%8D%AE%E5%8C%85%E6%8B%93%E5%B1%95/">02基础入门--数据包拓展</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/10/01%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E6%A6%82%E5%BF%B5%E5%90%8D%E8%AF%8D/">01基础入门--概念名词</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2021 Al0nez
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 6;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        $("a[target=_blank]").removeAttr("target");
+    
+</script>
+
+    <script>
+        var originTitle = document.title;
+        var titleTime;
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                document.title = "(つェ⊂) 我藏好了哦~ " + originTitle;
+                clearTimeout(titleTime);
+            }
+            else {
+                document.title = "(*´∇｀*) 被你发现啦~ " + originTitle;
+                titleTime = setTimeout(function() {
+                    document.title = originTitle;
+                }, 2000);
+            }
+        })
+    </script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>
