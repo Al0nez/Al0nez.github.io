@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="Al0nez" />
+
+
+
+<meta name="description" content="Github监控便于收集整理最新 exp 或 poc便于发现相关测试目标的资产">
+<meta property="og:type" content="article">
+<meta property="og:title" content="10信息收集-资产监控拓展">
+<meta property="og:url" content="https://al0nez.github.io/2021/09/21/10%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86-%E8%B5%84%E4%BA%A7%E7%9B%91%E6%8E%A7%E6%8B%93%E5%B1%95/index.html">
+<meta property="og:site_name" content="Al0nez&#39;s Bolg">
+<meta property="og:description" content="Github监控便于收集整理最新 exp 或 poc便于发现相关测试目标的资产">
+<meta property="og:locale">
+<meta property="og:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/202109211102475.png">
+<meta property="og:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/202109211101102.png">
+<meta property="og:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/202109211101137.png">
+<meta property="og:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/202109211101466.png">
+<meta property="og:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/202109211101119.png">
+<meta property="article:published_time" content="2021-09-21T02:27:28.000Z">
+<meta property="article:modified_time" content="2021-09-21T03:26:41.385Z">
+<meta property="article:author" content="Al0nez">
+<meta property="article:tag" content="Web">
+<meta property="article:tag" content="小迪学习笔记">
+<meta property="article:tag" content="信息收集">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/202109211102475.png">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="Al0nez&#39;s Bolg" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/img/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>10信息收集-资产监控拓展 | Al0nez&#39;s Bolg</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script> yiliaConfig.jquery_ui = [false]; </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.jpg" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">Al0nez</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">我与春风皆过客,你携秋水揽星河</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">文章</a></li>
+                        
+                            <li><a href="/tags/">标签</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:123@123.com" title="Email"></a>
+                            
+                                <a class="fa 博客园" href="/L0ne1y.github.io" title="博客园"></a>
+                            
+                                <a class="fa QQ" href="#" title="QQ"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="http://moxfive.xyz/">MOxFIVE</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">专注于前端</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">Al0nez</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.jpg" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">Al0nez</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">我与春风皆过客,你携秋水揽星河</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">文章</a></li>
+                
+                    <li><a href="/tags/">标签</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:123@123.com" title="Email"></a>
+                            
+                                <a class="fa 博客园" target="_blank" href="/L0ne1y.github.io" title="博客园"></a>
+                            
+                                <a class="fa QQ" target="_blank" href="#" title="QQ"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-10信息收集-资产监控拓展" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2021/09/21/10%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86-%E8%B5%84%E4%BA%A7%E7%9B%91%E6%8E%A7%E6%8B%93%E5%B1%95/" class="article-date">
+      <time datetime="2021-09-21T02:27:28.000Z" itemprop="datePublished">2021-09-21</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      10信息收集-资产监控拓展
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Web/" rel="tag">Web</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/" rel="tag">信息收集</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%B0%8F%E8%BF%AA%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" rel="tag">小迪学习笔记</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h3 id="Github监控"><a href="#Github监控" class="headerlink" title="Github监控"></a>Github监控</h3><p>便于收集整理最新 exp 或 poc<br>便于发现相关测试目标的资产</p>
+<span id="more"></span>
+
+<h3 id="各种子域名查询"><a href="#各种子域名查询" class="headerlink" title="各种子域名查询"></a>各种子域名查询</h3><h3 id="DNS-备案-证书"><a href="#DNS-备案-证书" class="headerlink" title="DNS,备案,证书"></a>DNS,备案,证书</h3><h3 id="全球节点请求-cdn"><a href="#全球节点请求-cdn" class="headerlink" title="全球节点请求 cdn"></a>全球节点请求 cdn</h3><p>枚举爆破或解析子域名对应<br>便于发现管理员相关的注册信息</p>
+<h3 id="黑暗引擎相关搜索"><a href="#黑暗引擎相关搜索" class="headerlink" title="黑暗引擎相关搜索"></a>黑暗引擎相关搜索</h3><p>fofa，shodan，zoomeye</p>
+<h3 id="微信公众号接口获取"><a href="#微信公众号接口获取" class="headerlink" title="微信公众号接口获取"></a>微信公众号接口获取</h3><h3 id="内部群内部应用内部接口"><a href="#内部群内部应用内部接口" class="headerlink" title="内部群内部应用内部接口"></a>内部群内部应用内部接口</h3><img src="https://gitee.com/Gzero_GG/images/raw/master/img/202109211102475.png" alt="f39dd3590e0946f8820476b85d7f8ec6.png" style="zoom:80%;" />
+
+<h3 id="演示案例"><a href="#演示案例" class="headerlink" title="演示案例"></a>演示案例</h3><p>监控最新的EXP发布及其他</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line"># Title: wechat push CVE-2020</span><br><span class="line"># Date: 2020-5-9</span><br><span class="line"># Exploit Author: weixiao9188</span><br><span class="line"># Version: 4.0</span><br><span class="line"># Tested on: Linux,windows</span><br><span class="line"># coding:UTF-8</span><br><span class="line">import requests</span><br><span class="line">import json</span><br><span class="line">import time</span><br><span class="line">import os</span><br><span class="line">import pandas as pd</span><br><span class="line">time_sleep = 20 #每隔20秒爬取一次</span><br><span class="line">while(True):</span><br><span class="line">    headers = &#123;</span><br><span class="line">        &quot;User-Agent&quot;: &quot;Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.25 Safari/537.36 Core/1.70.3741.400 QQBrowser/10.5.3863.400&quot;&#125;</span><br><span class="line">    #判断文件是否存在</span><br><span class="line">    datas = []</span><br><span class="line">    response1=None</span><br><span class="line">    response2=None</span><br><span class="line">    if os.path.exists(&quot;olddata.csv&quot;):</span><br><span class="line">        #如果文件存在则每次爬取10个</span><br><span class="line">        df = pd.read_csv(&quot;olddata.csv&quot;, header=None)</span><br><span class="line">        datas = df.where(df.notnull(),None).values.tolist()#将提取出来的数据中的nan转化为None</span><br><span class="line">        response1 = requests.get(url=&quot;https://api.github.com/search/repositories?q=CVE-2020&amp;sort=updated&amp;per_page=10&quot;,</span><br><span class="line">                                 headers=headers)</span><br><span class="line">        response2 = requests.get(url=&quot;https://api.github.com/search/repositories?q=phpcms&amp;ssort=updated&amp;per_page=10&quot;,</span><br><span class="line">                                 headers=headers)</span><br><span class="line">    else:</span><br><span class="line">        #不存在爬取全部</span><br><span class="line">        datas = []</span><br><span class="line">        response1 = requests.get(url=&quot;https://api.github.com/search/repositories?q=CVE-2020&amp;sort=updated&amp;order=desc&quot;,headers=headers)</span><br><span class="line">        response2 = requests.get(url=&quot;https://api.github.com/search/repositories?q=RCE&amp;ssort=updated&amp;order=desc&quot;,headers=headers)</span><br><span class="line"></span><br><span class="line">    data1 = json.loads(response1.text)</span><br><span class="line">    data2 = json.loads(response2.text)</span><br><span class="line">    for j in [data1[&quot;items&quot;],data2[&quot;items&quot;]]:</span><br><span class="line">        for i in j:</span><br><span class="line">            s = &#123;&quot;name&quot;:i[&#x27;name&#x27;],&quot;html&quot;:i[&#x27;html_url&#x27;],&quot;description&quot;:i[&#x27;description&#x27;]&#125;</span><br><span class="line">            s1 =[i[&#x27;name&#x27;],i[&#x27;html_url&#x27;],i[&#x27;description&#x27;]]</span><br><span class="line">            if s1 not in datas:</span><br><span class="line">                #print(s1)</span><br><span class="line">                #print(datas)</span><br><span class="line">                params = &#123;</span><br><span class="line">                     &quot;text&quot;:s[&quot;name&quot;],</span><br><span class="line">                    &quot;desp&quot;:&quot; 链接:&quot;+str(s[&quot;html&quot;])+&quot;\n简介&quot;+str(s[&quot;description&quot;])</span><br><span class="line">                &#125;</span><br><span class="line">                print(&quot;当前推送为&quot;+str(s)+&quot;\n&quot;)</span><br><span class="line">                print(params)</span><br><span class="line">                requests.get(&quot;https://sc.ftqq.com/xxxx.send&quot;,params=params,timeout=10)</span><br><span class="line">                #time.sleep(1)#以防推送太猛#，verify=False</span><br><span class="line">                print(&quot;推送完成!&quot;)</span><br><span class="line">                datas.append(s1)</span><br><span class="line">            else:</span><br><span class="line">                pass</span><br><span class="line">                #print(&quot;数据已处在!&quot;)</span><br><span class="line">    pd.DataFrame(datas).to_csv(&quot;olddata.csv&quot;,header=None,index=None)</span><br><span class="line">    time.sleep(time_sleep)</span><br></pre></td></tr></table></figure>
+
+<h4 id="安装pandas"><a href="#安装pandas" class="headerlink" title="安装pandas"></a>安装pandas</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install pandas</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://gitee.com/Gzero_GG/images/raw/master/img/202109211101102.png" alt="image-20210820151850943"></p>
+<h4 id="Server酱设置"><a href="#Server酱设置" class="headerlink" title="Server酱设置"></a>Server酱设置</h4><p>扫码登录获取自己的SendKey，之后修改到代码中xxxx为SendKey值。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://sctapi.ftqq.com/xxxx.send</span><br></pre></td></tr></table></figure>
+
+<h4 id="最后结果"><a href="#最后结果" class="headerlink" title="最后结果"></a>最后结果</h4><p><img src="https://gitee.com/Gzero_GG/images/raw/master/img/202109211101137.png" alt="image-20210820154200037"></p>
+<h4 id="黑暗引擎实现域名端口等收集"><a href="#黑暗引擎实现域名端口等收集" class="headerlink" title="黑暗引擎实现域名端口等收集"></a>黑暗引擎实现域名端口等收集</h4><p><img src="https://gitee.com/Gzero_GG/images/raw/master/img/202109211101466.png" alt="image-20210921110147377"></p>
+<h4 id="全自动域名收集枚举优秀脚本使用"><a href="#全自动域名收集枚举优秀脚本使用" class="headerlink" title="全自动域名收集枚举优秀脚本使用"></a>全自动域名收集枚举优秀脚本使用</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">以xxxx为例，从标题，域名等收集</span><br><span class="line">以xxxx为例，全自动脚本使用收集</span><br></pre></td></tr></table></figure>
+
+<h5 id="teemo"><a href="#teemo" class="headerlink" title="teemo"></a>teemo</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip.exe install requirements.txt</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://gitee.com/Gzero_GG/images/raw/master/img/202109211101119.png" alt="image-20210820160708603"></p>
+<h2 id="涉及资源"><a href="#涉及资源" class="headerlink" title="涉及资源"></a>涉及资源</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">https://crt.sh/</span><br><span class="line">https://dnsdb.io/</span><br><span class="line">https://sc.ftqq.com/3.versionhttps://tools.ipip.net/cdn.php</span><br><span class="line">https://github.com/bit4woo/teemo</span><br><span class="line">https://securitytrails.com/domain/www.baidu.com/history/a</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2021/09/21/10%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86-%E8%B5%84%E4%BA%A7%E7%9B%91%E6%8E%A7%E6%8B%93%E5%B1%95/">10信息收集-资产监控拓展</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">Al0nez</a></p>
+        <p><span>发布时间:</span>2021-09-21, 10:27:28</p>
+        <p><span>最后更新:</span>2021-09-21, 11:26:41</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2021/09/21/10%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86-%E8%B5%84%E4%BA%A7%E7%9B%91%E6%8E%A7%E6%8B%93%E5%B1%95/" title="10信息收集-资产监控拓展">https://al0nez.github.io/2021/09/21/10%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86-%E8%B5%84%E4%BA%A7%E7%9B%91%E6%8E%A7%E6%8B%93%E5%B1%95/</a>
+            <span class="copy-path" data-clipboard-text="原文: https://al0nez.github.io/2021/09/21/10%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86-%E8%B5%84%E4%BA%A7%E7%9B%91%E6%8E%A7%E6%8B%93%E5%B1%95/　　作者: Al0nez" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2021/09/21/11WEB%E6%BC%8F%E6%B4%9E-%E5%BF%85%E6%87%82%E7%9F%A5%E8%AF%86/">
+                    11WEB漏洞--必懂知识
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2021/09/21/09%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86-APP%E5%8F%8A%E5%85%B6%E4%BB%96%E8%B5%84%E4%BA%A7%E7%AD%89/">
+                    09信息收集--APP及其他资产等
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#Github%E7%9B%91%E6%8E%A7"><span class="toc-number">1.</span> <span class="toc-text">Github监控</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%90%84%E7%A7%8D%E5%AD%90%E5%9F%9F%E5%90%8D%E6%9F%A5%E8%AF%A2"><span class="toc-number">2.</span> <span class="toc-text">各种子域名查询</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#DNS-%E5%A4%87%E6%A1%88-%E8%AF%81%E4%B9%A6"><span class="toc-number">3.</span> <span class="toc-text">DNS,备案,证书</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%A8%E7%90%83%E8%8A%82%E7%82%B9%E8%AF%B7%E6%B1%82-cdn"><span class="toc-number">4.</span> <span class="toc-text">全球节点请求 cdn</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%BB%91%E6%9A%97%E5%BC%95%E6%93%8E%E7%9B%B8%E5%85%B3%E6%90%9C%E7%B4%A2"><span class="toc-number">5.</span> <span class="toc-text">黑暗引擎相关搜索</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BE%AE%E4%BF%A1%E5%85%AC%E4%BC%97%E5%8F%B7%E6%8E%A5%E5%8F%A3%E8%8E%B7%E5%8F%96"><span class="toc-number">6.</span> <span class="toc-text">微信公众号接口获取</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%86%85%E9%83%A8%E7%BE%A4%E5%86%85%E9%83%A8%E5%BA%94%E7%94%A8%E5%86%85%E9%83%A8%E6%8E%A5%E5%8F%A3"><span class="toc-number">7.</span> <span class="toc-text">内部群内部应用内部接口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%94%E7%A4%BA%E6%A1%88%E4%BE%8B"><span class="toc-number">8.</span> <span class="toc-text">演示案例</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%89%E8%A3%85pandas"><span class="toc-number">8.1.</span> <span class="toc-text">安装pandas</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Server%E9%85%B1%E8%AE%BE%E7%BD%AE"><span class="toc-number">8.2.</span> <span class="toc-text">Server酱设置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9C%80%E5%90%8E%E7%BB%93%E6%9E%9C"><span class="toc-number">8.3.</span> <span class="toc-text">最后结果</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%BB%91%E6%9A%97%E5%BC%95%E6%93%8E%E5%AE%9E%E7%8E%B0%E5%9F%9F%E5%90%8D%E7%AB%AF%E5%8F%A3%E7%AD%89%E6%94%B6%E9%9B%86"><span class="toc-number">8.4.</span> <span class="toc-text">黑暗引擎实现域名端口等收集</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%A8%E8%87%AA%E5%8A%A8%E5%9F%9F%E5%90%8D%E6%94%B6%E9%9B%86%E6%9E%9A%E4%B8%BE%E4%BC%98%E7%A7%80%E8%84%9A%E6%9C%AC%E4%BD%BF%E7%94%A8"><span class="toc-number">8.5.</span> <span class="toc-text">全自动域名收集枚举优秀脚本使用</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#teemo"><span class="toc-number">8.5.1.</span> <span class="toc-text">teemo</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B6%89%E5%8F%8A%E8%B5%84%E6%BA%90"><span class="toc-number"></span> <span class="toc-text">涉及资源</span></a>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-4 i,
+        .toc-level-4 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2021/09/21/11WEB%E6%BC%8F%E6%B4%9E-%E5%BF%85%E6%87%82%E7%9F%A5%E8%AF%86/" title="上一篇: 11WEB漏洞--必懂知识">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2021/09/21/09%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86-APP%E5%8F%8A%E5%85%B6%E4%BB%96%E8%B5%84%E4%BA%A7%E7%AD%89/" title="下一篇: 09信息收集--APP及其他资产等">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/37WEB%E6%BC%8F%E6%B4%9E-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E4%B9%8BPHP/">37WEB漏洞-反序列化之PHP</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/36WEB%E6%BC%8F%E6%B4%9E-%E9%80%BB%E8%BE%91%E8%B6%8A%E6%9D%83%E4%B9%8B%E9%AA%8C%E8%AF%81%E7%A0%81%E4%B8%8EToken%E5%8F%8A%E6%8E%A5%E5%8F%A3/">36WEB漏洞-逻辑越权之验证码与Token及接口</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/35WEB%E6%BC%8F%E6%B4%9E-%E9%80%BB%E8%BE%91%E8%B6%8A%E6%9D%83%E4%B9%8B%E6%89%BE%E5%9B%9E%E6%9C%BA%E5%88%B6%E5%8F%8A%E6%8E%A5%E5%8F%A3%E7%88%86%E7%A0%B4/">35WEB漏洞-逻辑越权之找回机制及接口爆破</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/34WEB%E6%BC%8F%E6%B4%9E-%E9%80%BB%E8%BE%91%E8%B6%8A%E6%9D%83%E4%B9%8B%E6%94%AF%E4%BB%98%E6%95%B0%E6%8D%AE%E7%AF%A1%E6%94%B9%E5%AE%89%E5%85%A8/">34WEB漏洞-逻辑越权之支付数据篡改安全</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/33WEB%E6%BC%8F%E6%B4%9E-%E9%80%BB%E8%BE%91%E8%B6%8A%E6%9D%83%E4%B9%8B%E6%B0%B4%E5%B9%B3%E5%9E%82%E7%9B%B4%E8%B6%8A%E6%9D%83%E5%85%A8%E8%A7%A3/">33WEB漏洞-逻辑越权之水平垂直越权全解</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/32WEB%E6%BC%8F%E6%B4%9E-%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C%E4%B9%8B%E6%96%87%E4%BB%B6%E4%B8%8B%E8%BD%BD%E8%AF%BB%E5%8F%96%E5%85%A8%E8%A7%A3/">32WEB漏洞-文件操作之文件下载读取全解</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/31WEB%E6%BC%8F%E6%B4%9E-%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C%E4%B9%8B%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E%E5%85%A8%E8%A7%A3/">31WEB漏洞-文件操作之文件包含漏洞全解</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/30WEB%E6%BC%8F%E6%B4%9E-RCE%E4%BB%A3%E7%A0%81%E5%8F%8A%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%E5%85%A8%E8%A7%A3/">30WEB漏洞-RCE代码及命令执行漏洞全解</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/29WEB%E6%BC%8F%E6%B4%9E-CSRF%E5%8F%8ASSRF%E6%BC%8F%E6%B4%9E%E6%A1%88%E4%BE%8B%E8%AE%B2%E8%A7%A3/">29WEB漏洞-CSRF及SSRF漏洞案例讲解</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/28WEB%E6%BC%8F%E6%B4%9E-XSS%E8%B7%A8%E7%AB%99%E4%B9%8BWAF%E7%BB%95%E8%BF%87%E5%8F%8A%E5%AE%89%E5%85%A8%E4%BF%AE%E5%A4%8D/">28WEB漏洞-XSS跨站之WAF绕过及安全修复</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/27WEB%E6%BC%8F%E6%B4%9E-XSS%E8%B7%A8%E7%AB%99%E4%B9%8B%E4%BB%A3%E7%A0%81%E5%8F%8Ahttponly%E7%BB%95%E8%BF%87/">27WEB漏洞-XSS跨站之代码及httponly绕过</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/26WEB%E6%BC%8F%E6%B4%9E-XSS%E8%B7%A8%E7%AB%99%E4%B9%8B%E8%AE%A2%E5%8D%95%E5%8F%8AShell%E7%AE%B1%E5%AD%90%E5%8F%8D%E6%9D%80%E8%AE%B0/">26WEB漏洞-XSS跨站之订单及Shell箱子反杀记</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/25WEB%E6%BC%8F%E6%B4%9E-XSS%E8%B7%A8%E7%AB%99%E4%B9%8B%E5%8E%9F%E7%90%86%E5%88%86%E7%B1%BB%E5%8F%8A%E6%94%BB%E5%87%BB%E6%89%8B%E6%B3%95/">25WEB漏洞-XSS跨站之原理分类及攻击手法</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/24WEB%E6%BC%8F%E6%B4%9E-%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E4%B9%8BWAF%E7%BB%95%E8%BF%87%E5%8F%8A%E5%AE%89%E5%85%A8%E4%BF%AE%E5%A4%8D/">24WEB漏洞-文件上传之WAF绕过及安全修复</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/23WEB%E6%BC%8F%E6%B4%9E-%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E4%B9%8B%E8%A7%A3%E6%9E%90%E6%BC%8F%E6%B4%9E%E7%BC%96%E8%BE%91%E5%99%A8%E5%AE%89%E5%85%A8/">23WEB漏洞-文件上传之解析漏洞编辑器安全</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/22WEB%E6%BC%8F%E6%B4%9E-%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E4%B9%8B%E5%86%85%E5%AE%B9%E9%80%BB%E8%BE%91%E6%95%B0%E7%BB%84%E7%BB%95%E8%BF%87/">22WEB漏洞-文件上传之内容逻辑数组绕过</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/21WEB%E6%BC%8F%E6%B4%9E-%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E4%B9%8B%E5%90%8E%E7%AB%AF%E9%BB%91%E7%99%BD%E5%90%8D%E5%8D%95%E7%BB%95%E8%BF%87/">21WEB漏洞--文件上传之后端黑白名单绕过</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/20WEB%E6%BC%8F%E6%B4%9E-%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E4%B9%8B%E5%9F%BA%E7%A1%80%E5%8F%8A%E8%BF%87%E6%BB%A4%E6%96%B9%E5%BC%8F/">20WEB漏洞--文件上传之基础及过滤方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/19WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8B%E6%B7%B1%E5%85%A5WAF%E6%B3%A8%E5%85%A5%E7%BB%95%E8%BF%87/">19WEB漏洞--SQL注入之深入WAF注入绕过</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/18WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8B%E5%A0%86%E5%8F%A0%E5%8F%8AWAF%E7%BB%95%E8%BF%87%E6%B3%A8%E5%85%A5/">18WEB漏洞--SQL注入之堆叠及WAF绕过注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/17WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8B%E4%BA%8C%E6%AC%A1%E3%80%81%E5%8A%A0%E8%A7%A3%E5%AF%86%E3%80%81DNS%E7%AD%89%E6%B3%A8%E5%85%A5/">17WEB漏洞--SQL注入之二次、加解密、DNS等注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/16WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8B%E6%9F%A5%E8%AF%A2%E6%96%B9%E5%BC%8F%E5%8F%8A%E6%8A%A5%E9%94%99%E7%9B%B2%E6%B3%A8/">16WEB漏洞--SQL注入之查询方式及报错盲注</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/15WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8BOracle%E3%80%81MongoDB%E6%B3%A8%E5%85%A5/">15WEB漏洞--SQL注入之Oracle、MongoDB注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/14WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8B%E7%B1%BB%E5%9E%8B%E5%8F%8A%E6%8F%90%E4%BA%A4%E6%B3%A8%E5%85%A5/">14WEB漏洞--SQL注入之类型及提交注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/13WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8BMYSQL%E6%B3%A8%E5%85%A5/">13WEB漏洞--SQL注入之MYSQL注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/12WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8B%E7%AE%80%E8%A6%81SQL%E6%B3%A8%E5%85%A5/">12WEB漏洞--SQL注入之简要SQL注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/11WEB%E6%BC%8F%E6%B4%9E-%E5%BF%85%E6%87%82%E7%9F%A5%E8%AF%86/">11WEB漏洞--必懂知识</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/10%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86-%E8%B5%84%E4%BA%A7%E7%9B%91%E6%8E%A7%E6%8B%93%E5%B1%95/">10信息收集-资产监控拓展</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/09%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86-APP%E5%8F%8A%E5%85%B6%E4%BB%96%E8%B5%84%E4%BA%A7%E7%AD%89/">09信息收集--APP及其他资产等</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/08%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86-%E6%9E%B6%E6%9E%84%EF%BC%8C%E6%90%AD%E5%BB%BA%EF%BC%8CWAF/">08信息收集--架构，搭建，WAF</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/07%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86-CDN%E7%BB%95%E8%BF%87%E6%8A%80%E6%9C%AF/">07信息收集--CDN绕过技术</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/06%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E5%8A%A0%E5%AF%86%E7%BC%96%E7%A0%81%E7%AE%97%E6%B3%95/">06基础入门--加密编码算法</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/05%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E7%B3%BB%E7%BB%9F%E5%8F%8A%E6%95%B0%E6%8D%AE%E5%BA%93/">05基础入门--系统及数据库</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/04%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-WEB%E6%BA%90%E7%A0%81%E6%8B%93%E5%B1%95/">04基础入门--WEB源码拓展</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/03%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E6%90%AD%E5%BB%BA%E5%AE%89%E5%85%A8%E6%8B%93%E5%B1%95/">03基础入门--搭建安全拓展</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/12/02%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E6%95%B0%E6%8D%AE%E5%8C%85%E6%8B%93%E5%B1%95/">02基础入门--数据包拓展</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/10/01%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E6%A6%82%E5%BF%B5%E5%90%8D%E8%AF%8D/">01基础入门--概念名词</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2021 Al0nez
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 6;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        $("a[target=_blank]").removeAttr("target");
+    
+</script>
+
+    <script>
+        var originTitle = document.title;
+        var titleTime;
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                document.title = "(つェ⊂) 我藏好了哦~ " + originTitle;
+                clearTimeout(titleTime);
+            }
+            else {
+                document.title = "(*´∇｀*) 被你发现啦~ " + originTitle;
+                titleTime = setTimeout(function() {
+                    document.title = originTitle;
+                }, 2000);
+            }
+        })
+    </script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

